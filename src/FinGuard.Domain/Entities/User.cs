@@ -1,10 +1,11 @@
-﻿using FinGuard.Domain.Enums;
+﻿using FinGuard.Domain.Common;
+using FinGuard.Domain.Enums;
 using FinGuard.Domain.Exceptions;
 using FinGuard.Domain.ValueObjects;
 
 namespace FinGuard.Domain.Entities;
 
-public class User
+public class User : ITenant
 {
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
