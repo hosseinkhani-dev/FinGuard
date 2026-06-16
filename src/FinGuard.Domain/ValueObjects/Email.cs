@@ -12,6 +12,9 @@ public record Email
             !emailAddress.Contains("@"))
             throw new DomainException("Invalid email address format.");
 
+        if (emailAddress.Length > 200)
+            throw new DomainException("Email cannot be more than 150 character");
+
         EmailAddress = emailAddress;
     }
 }
