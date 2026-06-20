@@ -2,6 +2,7 @@
 using FinGuard.Domain.Entities;
 using FinGuard.Infrastructure.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace FinGuard.Infrastructure.Persistence;
 
@@ -18,6 +19,8 @@ public class FinGuardDbContext : DbContext
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<User> Users => Set<User>();
+
+    public Guid CurrentTenantId => _tenantProvider.GetTenantId();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,17 +58,17 @@ public class FinGuardDbContext : DbContext
 
 
     // e => e.TenantId == _tenantProvider.GetTenantId()
-    private System.Linq.Expressions.LambdaExpression ConvertFilterExpression(Type type)
+    private LambdaExpression ConvertFilterExpression(Type type)
     {
-        var parameter = System.Linq.Expressions.Expression.Parameter(type, "e");
-        var property = System.Linq.Expressions.Expression.Property(parameter, nameof(ITenant.TenantId));
+        var parameter = Expression.Parameter(type, "e");
+        var property = Expression.Property(parameter, nameof(ITenant.TenantId));
 
-        var tenantIdProviderExpression = System.Linq.Expressions.Expression.Call(
-            System.Linq.Expressions.Expression.Constant(_tenantProvider),
-            typeof(ITenantProvider).GetMethod(nameof(ITenantProvider.GetTenantId))!
-        );
+        var contextConstant = Expression.Constant(this);
 
-        var body = System.Linq.Expressions.Expression.Equal(property, tenantIdProviderExpression);
-        return System.Linq.Expressions.Expression.Lambda(body, parameter);
+        var tenantIdProviderExpression =
+            Expression.Property(contextConstant, nameof(CurrentTenantId));
+
+        var body = Expression.Equal(property, tenantIdProviderExpression);
+        return Expression.Lambda(body, parameter);
     }
 }

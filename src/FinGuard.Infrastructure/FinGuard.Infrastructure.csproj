@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\FinGuard.Domain\FinGuard.Domain.csproj" />
+    <ProjectReference Include="..\FinGuard.Domain\FinGuard.Domain.csproj" />
   </ItemGroup>
 
 </Project>
