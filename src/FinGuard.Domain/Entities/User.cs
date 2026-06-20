@@ -17,17 +17,17 @@ public class User : ITenant
     private User() { }
 
     public User(
-        Guid tenantId,
+        //Guid tenantId,
         string userName,
         string passwordHash,
         Email? email)
     {
-        if (tenantId == Guid.Empty)
-            throw new DomainException("Tenant Id cannot be null.");
+        //if (tenantId == Guid.Empty)
+        //    throw new DomainException("Tenant Id cannot be null.");
 
         Id = Guid.NewGuid();
         SetUserName(userName);
-        TenantId = tenantId;
+        //TenantId = tenantId;
         PasswordHash = passwordHash;
         Email = email;
         Role = UserRole.Auditor;

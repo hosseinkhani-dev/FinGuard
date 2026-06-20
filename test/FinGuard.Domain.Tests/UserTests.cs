@@ -18,30 +18,30 @@ public class UserTests
         var email = new Email("dummy@email");
 
         // Act
-        var user = new User(tenantId, userName, passwordHash, email);
+        var user = new User( userName, passwordHash, email);
 
         // Assert
         user.Id.Should().NotBeEmpty();
         user.UserName.Should().Be(userName);
-        user.TenantId.Should().Be(tenantId);
+        //user.TenantId.Should().Be(tenantId);
         user.PasswordHash.Should().Be(passwordHash);
         user.Email.Should().Be(email);
         user.Role.Should().Be(UserRole.Auditor);
     }
 
-    [Fact]
-    public void Constructor_WithEmptyTenantId_ShouldThrowDomainException()
-    {
-        // Arrange
-        var invalidTenantId = Guid.Empty;
+    //[Fact]
+    //public void Constructor_WithEmptyTenantId_ShouldThrowDomainException()
+    //{
+    //    // Arrange
+    //    var invalidTenantId = Guid.Empty;
 
-        // Act
-        Action act = () => new User(invalidTenantId, "valid_user", "hash", null);
+    //    // Act
+    //    Action act = () => new User( "valid_user", "hash", null);
 
-        // Assert
-        act.Should().Throw<DomainException>()
-           .WithMessage("Tenant Id cannot be null.");
-    }
+    //    // Assert
+    //    act.Should().Throw<DomainException>()
+    //       .WithMessage("Tenant Id cannot be null.");
+    //}
 
     [Theory]
     [InlineData("")]
@@ -50,7 +50,7 @@ public class UserTests
     public void Constructor_WithInvalidUserName_ShouldThrowDomainException(string invalidName)
     {
         // Arrange & Act
-        Action act = () => new User(Guid.NewGuid(), invalidName, "hash", null);
+        Action act = () => new User( invalidName, "hash", null);
 
         // Assert
         act.Should().Throw<DomainException>()
@@ -64,7 +64,7 @@ public class UserTests
         var longName = new string('a', 51);
 
         // Act
-        Action act = () => new User(Guid.NewGuid(), longName, "hash", null);
+        Action act = () => new User( longName, "hash", null);
 
         // Assert
         act.Should().Throw<DomainException>()
