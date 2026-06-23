@@ -1,0 +1,24 @@
+﻿using FluentValidation;
+
+namespace FinGuard.Application.Features.Tenants.Commands.CreateTenant;
+
+public class CreateTenantCommandValidator : AbstractValidator<CreateTenantCommand>
+{
+    public CreateTenantCommandValidator()
+    {
+        RuleFor(t => t.Name)
+            .NotEmpty().WithMessage("Tenant name cannot be empty.")
+            .MaximumLength(50).WithMessage("Tenant name should not be more than 50 character.");
+
+        RuleFor(u => u.UserName)
+            .NotEmpty().WithMessage("UserName cannot be empty.")
+            .MaximumLength(50).WithMessage("UserName cannot be more than 50 character.");
+
+        RuleFor(x => x.Email)
+            .Must(email => email!.Contains("@"))
+            .WithMessage("Invalid email address format.")
+            .MaximumLength(200)
+            .WithMessage("Email cannot be more than 200 character.")
+            .When(x => !string.IsNullOrWhiteSpace(x.Email));
+    }
+}

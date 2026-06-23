@@ -1,4 +1,5 @@
-﻿using FinGuard.Domain.Common;
+﻿using FinGuard.Application.Commons.Interfaces;
+using FinGuard.Domain.Common;
 using FinGuard.Domain.Entities;
 using FinGuard.Infrastructure.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace FinGuard.Infrastructure.Persistence;
 
-public class FinGuardDbContext : DbContext
+public class FinGuardDbContext : DbContext, IFinGuardDbContext
 {
     private readonly ITenantProvider _tenantProvider;
 
@@ -47,7 +48,7 @@ public class FinGuardDbContext : DbContext
 
         foreach (var entry in ChangeTracker.Entries<ITenant>())
         {
-            if (entry.State == EntityState.Added)
+            if (entry.State == EntityState.Added && entry.Entity.TenantId == Guid.Empty)
             {
                 entry.Property(nameof(ITenant.TenantId)).CurrentValue = currentTenantId;
             }

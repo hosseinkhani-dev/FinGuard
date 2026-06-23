@@ -12,7 +12,6 @@ public class UserTests
     public void Constructor_WithValidData_ShouldInitializeCorrectly()
     {
         // Arrange
-        var tenantId = Guid.NewGuid();
         var userName = "Dummy userName";
         var passwordHash = "dummy-password-hash";
         var email = new Email("dummy@email");
@@ -23,25 +22,10 @@ public class UserTests
         // Assert
         user.Id.Should().NotBeEmpty();
         user.UserName.Should().Be(userName);
-        //user.TenantId.Should().Be(tenantId);
         user.PasswordHash.Should().Be(passwordHash);
         user.Email.Should().Be(email);
         user.Role.Should().Be(UserRole.Auditor);
     }
-
-    //[Fact]
-    //public void Constructor_WithEmptyTenantId_ShouldThrowDomainException()
-    //{
-    //    // Arrange
-    //    var invalidTenantId = Guid.Empty;
-
-    //    // Act
-    //    Action act = () => new User( "valid_user", "hash", null);
-
-    //    // Assert
-    //    act.Should().Throw<DomainException>()
-    //       .WithMessage("Tenant Id cannot be null.");
-    //}
 
     [Theory]
     [InlineData("")]
@@ -83,5 +67,43 @@ public class UserTests
         // Assert
         act.Should().Throw<DomainException>()
            .WithMessage("Invalid email address format.");
+    }
+
+    [Fact]
+    public void AssignTenant_WithEmptyId_ShouldThrowDomainException()
+    {
+        var invalidTenantId = Guid.Empty;
+        var userName = "Dummy userName";
+        var passwordHash = "dummy-password-hash";
+        var email = new Email("dummy@email");
+
+        var user = new User(userName, passwordHash, email);
+
+        // Act 
+        Action act = () => user.AssignTenant(invalidTenantId);
+
+        // Assert
+        act.Should().Throw<DomainException>()
+           .WithMessage("Tenant ID cannot be empty.");
+    }
+
+    [Fact]
+    public void AssignTenant_WhenUserAlreadyHasTenant_ShouldThrowDomainException()
+    {
+        var tenantId = Guid.NewGuid();
+        var userName = "Dummy userName";
+        var passwordHash = "dummy-password-hash";
+        var email = new Email("dummy@email");
+
+        var user = new User(userName, passwordHash, email);
+
+        user.AssignTenant(tenantId);
+
+        // Act 
+        Action act = () => user.AssignTenant(Guid.NewGuid());
+
+        // Assert
+        act.Should().Throw<DomainException>()
+           .WithMessage("Cannot reassign a user to a different tenant.");
     }
 }
