@@ -1,4 +1,5 @@
 ﻿using FinGuard.Domain.Entities;
+using FinGuard.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,12 +13,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.UserName).IsRequired().HasMaxLength(50);
 
-        builder.OwnsOne(u => u.Email, emailBuilder =>
-        {
-            emailBuilder.Property(e => e.EmailAddress)
+        builder.Property(u => u.Email)
+            .HasConversion(
+            email => email != null ? email.EmailAddress : null,
+            value => value != null ? new Email(value) : null)
             .HasColumnName("Email")
             .HasMaxLength(200)
             .IsRequired(false);
-        });
     }
 }

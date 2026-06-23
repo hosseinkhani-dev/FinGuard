@@ -17,20 +17,26 @@ public class User : ITenant
     private User() { }
 
     public User(
-        //Guid tenantId,
         string userName,
         string passwordHash,
         Email? email)
     {
-        //if (tenantId == Guid.Empty)
-        //    throw new DomainException("Tenant Id cannot be null.");
-
         Id = Guid.NewGuid();
         SetUserName(userName);
-        //TenantId = tenantId;
         PasswordHash = passwordHash;
         Email = email;
         Role = UserRole.Auditor;
+    }
+
+    public void AssignTenant(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new DomainException("Tenant ID cannot be empty.");
+
+        if (TenantId != Guid.Empty)
+            throw new DomainException("Cannot reassign a user to a different tenant.");
+
+        TenantId = tenantId;
     }
 
     public void UpdateUserName(string userName)
