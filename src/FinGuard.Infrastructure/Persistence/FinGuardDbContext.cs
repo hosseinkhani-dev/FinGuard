@@ -41,7 +41,7 @@ public class FinGuardDbContext : DbContext, IFinGuardDbContext
         }
     }
 
-    // Modify The SaveChangesAsync So In Every Add Save The TenantId To The Object Automatically
+    // Modify The SaveChangesAsync So In Every Add, Save The TenantId To The Object Automatically
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var currentTenantId = _tenantProvider.GetTenantId();

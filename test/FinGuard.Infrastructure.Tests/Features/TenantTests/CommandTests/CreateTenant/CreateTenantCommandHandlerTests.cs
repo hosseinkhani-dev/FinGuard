@@ -30,7 +30,7 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         var command = new CreateTenantCommand(
             Name: "FinGuard Global Ltd",
             UserName: "finguard_admin",
-            PasswordHash: "secure_hash_123",
+            Password: "secure_hash_123",
             Email: "dummyTest@email");
 
         // Act
@@ -55,6 +55,6 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         savedUser.Should().NotBeNull();
         savedUser.UserName.Should().Be(command.UserName);
         savedUser.TenantId.Should().Be(tenantId);
-        savedUser.PasswordHash.Should().Be(command.PasswordHash);
+        savedUser.PasswordHash.Should().Be(command.Password);
     }
 }

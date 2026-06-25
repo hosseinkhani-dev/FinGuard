@@ -1,11 +1,10 @@
-﻿using FinGuard.Domain.ValueObjects;
-using MediatR;
+﻿using MediatR;
 
 namespace FinGuard.Application.Features.Tenants.Commands.CreateTenant;
 
 public record CreateTenantCommand(
     string Name,
     string UserName,
-    string PasswordHash,
+    string Password,
     string? Email ) : IRequest<Guid>;
 

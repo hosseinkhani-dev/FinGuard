@@ -30,7 +30,7 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, G
         ? null
         : new Email(request.Email);
 
-        var newUser = new User(request.UserName, request.PasswordHash, userEmail);
+        var newUser = new User(request.UserName, request.Password, userEmail);
         newUser.AssignTenant(newTenant.Id);
 
         _context.Users.Add(newUser);
