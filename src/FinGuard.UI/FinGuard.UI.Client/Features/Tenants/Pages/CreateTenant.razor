@@ -1,0 +1,134 @@
+﻿@page "/tenants/create"
+@using FinGuard.UI.Client.Components.Shared
+@using FinGuard.UI.Client.Features.Tenants.CreateTenants.Services
+@using FinGuard.UI.Client.Features.Tenants.Services
+@using FinGuard.UI.Client.Features.Tenants.Models
+@inject ITenantService TenantService
+@rendermode InteractiveAuto
+
+<main class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm p-4">
+                <h2 class="mb-3">Create Tenant</h2>
+                <p class="text-muted">Create new organization and first user</p>
+
+                <EditForm EditContext="@_editContext" OnValidSubmit="HandleSubmit" FormName="CreateTenant">
+
+                    @if (_globalError != null)
+                    {
+                        <div class="alert alert-danger">@_globalError</div>
+                    }
+
+                    <div class="mb-3">
+                        <InputText class="form-control"
+                                   @bind-Value="@_model.Name"
+                                   placeholder="Organization Name" />
+                        <ValidationMessage For="@(() => _model.Name)" class="text-danger small" />
+                    </div>
+
+                    <div class="mb-3">
+                        <InputText class="form-control"
+                                   @bind-Value="@_model.UserName"
+                                   placeholder="User Name" />
+                        <ValidationMessage For="@(() => _model.UserName)" class="text-danger small" />
+                    </div>
+
+                    <div class="mb-3">
+                        <InputText class="form-control" 
+                        @bind-Value="@_model.Email" 
+                        placeholder="Email (optional)" />
+                        <ValidationMessage For="@(() => _model.Email)" class="text-danger small" />
+                    </div>
+
+                    <div class="mb-3">
+                        <InputText type="password" 
+                            class="form-control" 
+                            @bind-Value="@_model.Password" 
+                            placeholder="Password" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" disabled="@_isSubmitting">
+                        @if (_isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                            <span>Provisioning...</span>
+                        }
+                        else
+                        {
+                            <span>Create Tenant</span>
+                        }
+                    </button>
+                </EditForm>
+
+                @if (_successMessage != null)
+                {
+                    <div class="alert alert-success mt-3">@_successMessage</div>
+                }
+            </div>
+        </div>
+    </div>
+</main>
+
+@code {
+    private CreateTenantModel _model = new();
+    private string? _successMessage;
+    private bool _isSubmitting;
+    private EditContext? _editContext;
+    private ValidationMessageStore? _messageStore;
+    private string? _globalError;
+
+    protected override void OnInitialized()
+    {
+        InitializeForm();
+    }
+
+    private void InitializeForm()
+    {
+        // Detach old handler if it exists to prevent memory retention
+        if (_editContext != null)
+        {
+            _editContext.OnFieldChanged -= HandleFieldChanged;
+        }
+
+        _editContext = new EditContext(_model);
+        _messageStore = new ValidationMessageStore(_editContext);
+        _editContext.OnFieldChanged += HandleFieldChanged;
+    }
+
+    private void HandleFieldChanged(object? sender, FieldChangedEventArgs eventArgs)
+    {
+        _messageStore?.Clear(eventArgs.FieldIdentifier);
+        _editContext?.NotifyValidationStateChanged();
+    }
+
+    private async Task HandleSubmit()
+    {
+        _isSubmitting = true;
+        _successMessage = null;
+        _globalError = null;
+
+        _messageStore?.Clear();
+        _editContext?.NotifyValidationStateChanged();
+
+        var response = await TenantService.CreateTenantAsync(_model);
+        if (response.IsSuccess)
+        {
+            _successMessage = $"{_model.Name} Successfully Created";
+
+            // Clear the input model and re-initialize the structural dependencies
+            _model = new();
+            InitializeForm();
+        }
+        else
+        {
+            _messageStore?.AddApiErrors(
+                _editContext!,
+                response.Errors,
+                _model,
+                out _globalError);
+        }
+
+        _isSubmitting = false;
+    }
+}
