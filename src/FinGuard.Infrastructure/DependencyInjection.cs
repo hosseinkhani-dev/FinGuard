@@ -1,5 +1,6 @@
 ﻿using FinGuard.Application.Commons.Interfaces;
 using FinGuard.Infrastructure.Persistence;
+using FinGuard.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,8 @@ public static class DependencyInjection
         // IFinGuardDbContext injection
         services.AddScoped<IFinGuardDbContext>(provider =>
             provider.GetRequiredService<FinGuardDbContext>());
+
+        services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
         return services;
     }

@@ -9,13 +9,16 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, G
 {
     private readonly IFinGuardDbContext _context;
     private readonly TimeProvider _timeProvider;
+    private readonly IPasswordHasher _passwordHasher;
 
     public CreateTenantCommandHandler(
         IFinGuardDbContext context,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IPasswordHasher passwordHasher)
     {
         _context = context;
         _timeProvider = timeProvider;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<Guid> Handle(
@@ -30,7 +33,9 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, G
         ? null
         : new Email(request.Email);
 
-        var newUser = new User(request.UserName, request.Password, userEmail);
+        string hashedPassword = _passwordHasher.HashPassword(request.Password);
+
+        var newUser = new User(request.UserName, hashedPassword, userEmail);
         newUser.AssignTenant(newTenant.Id);
 
         _context.Users.Add(newUser);

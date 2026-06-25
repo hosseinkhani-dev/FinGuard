@@ -1,4 +1,5 @@
 ﻿using FinGuard.Application.Features.Tenants.Commands.CreateTenant;
+using FinGuard.Infrastructure.Security;
 using FinGuard.Infrastructure.Tests;
 using FinGuard.Infrastructure.Tests.Fixtures;
 using FluentAssertions;
@@ -24,8 +25,9 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
     {
         // Arrange
         using var context = CreateDbContext();
+        var passwordHasher = new BCryptPasswordHasher(4);
 
-        var handler = new CreateTenantCommandHandler(context, _mockTimeProvider);
+        var handler = new CreateTenantCommandHandler(context, _mockTimeProvider, passwordHasher);
 
         var command = new CreateTenantCommand(
             Name: "FinGuard Global Ltd",
@@ -55,6 +57,7 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         savedUser.Should().NotBeNull();
         savedUser.UserName.Should().Be(command.UserName);
         savedUser.TenantId.Should().Be(tenantId);
-        savedUser.PasswordHash.Should().Be(command.Password);
+        passwordHasher.VerifyPassword(command.Password, savedUser.PasswordHash)
+            .Should().BeTrue();
     }
 }
