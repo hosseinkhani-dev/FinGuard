@@ -3,7 +3,7 @@ using FinGuard.Domain.Exceptions;
 using FluentAssertions;
 using Microsoft.Extensions.Time.Testing;
 
-namespace FinGuard.Domain.Tests;
+namespace FinGuard.UnitTests.DomainTests;
 
 public class TenantTests
 {
