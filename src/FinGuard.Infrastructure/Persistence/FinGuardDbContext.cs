@@ -1,7 +1,6 @@
 ﻿using FinGuard.Application.Commons.Interfaces;
 using FinGuard.Domain.Common;
 using FinGuard.Domain.Entities;
-using FinGuard.Infrastructure.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

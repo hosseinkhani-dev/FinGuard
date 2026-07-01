@@ -1,4 +1,4 @@
-﻿using FinGuard.Infrastructure.MultiTenancy;
+﻿using FinGuard.Application.Commons.Interfaces;
 using FinGuard.Infrastructure.Persistence;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;

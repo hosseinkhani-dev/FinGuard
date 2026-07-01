@@ -1,4 +1,4 @@
-﻿namespace FinGuard.Infrastructure.MultiTenancy;
+﻿namespace FinGuard.Application.Commons.Interfaces;
 
 public interface ITenantProvider
 {

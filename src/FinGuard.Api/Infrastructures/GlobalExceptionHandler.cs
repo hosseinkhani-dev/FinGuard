@@ -1,5 +1,7 @@
-﻿using FluentValidation;
+﻿using FinGuard.Application.Commons.Exceptions;
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FinGuard.Api.Infrastructures;
 
@@ -52,7 +54,57 @@ public class GlobalExceptionHandler : IExceptionHandler
             return true;
         }
 
-        // If it's some other unexpected crash, let it fall through (or handle 500s here too)
-        return false;
+        // Business Conflicts (HTTP 409 Conflict)
+        if (exception is ConflictException conflictException)
+        {
+            _logger.LogWarning("Business conflict occurred: {Message}", exception.Message);
+
+            httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.9",
+                Title = "A conflict occurred with the current state of the resource.",
+                Detail = conflictException.Message
+            };
+
+            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            return true;
+        }
+
+        // HTTP 404 Not Found
+        if (exception is NotFoundException notFoundException)
+        {
+            _logger.LogWarning("Resource not found: {Message}", exception.Message);
+
+            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+                Title = "The requested resource was not found.",
+                Detail = notFoundException.Message
+            };
+
+            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            return true;
+        }
+
+        // HTTP 500 Error
+        _logger.LogError(exception, "An unhandled exception occurred on the server.");
+
+        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+        var internalErrorDetails = new ProblemDetails
+        {
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "Internal Server Error",
+            Detail = "An unexpected server error occurred. Please contact system support."
+        };
+
+        await httpContext.Response.WriteAsJsonAsync(internalErrorDetails, cancellationToken);
+        return true;
     }
 }

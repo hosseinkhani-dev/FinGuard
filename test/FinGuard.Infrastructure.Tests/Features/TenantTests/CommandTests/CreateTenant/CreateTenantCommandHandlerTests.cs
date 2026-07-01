@@ -1,4 +1,6 @@
-﻿using FinGuard.Application.Features.Tenants.Commands.CreateTenant;
+﻿using FinGuard.Application.Commons.Exceptions;
+using FinGuard.Application.Features.Tenants.Commands.CreateTenant;
+using FinGuard.Domain.Entities;
 using FinGuard.Infrastructure.Security;
 using FinGuard.Infrastructure.Tests;
 using FinGuard.Infrastructure.Tests.Fixtures;
@@ -57,7 +59,42 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         savedUser.Should().NotBeNull();
         savedUser.UserName.Should().Be(command.UserName);
         savedUser.TenantId.Should().Be(tenantId);
+        savedUser.Email!.EmailAddress.Should().Be(command.Email);
         passwordHasher.VerifyPassword(command.Password, savedUser.PasswordHash)
             .Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowConflictException_WhenUsernameExist()
+    {
+        // Arrange
+        string userName = "dummy-user-name";
+
+        TenantProvider.CurrentTenantId = Guid.NewGuid();
+        using (var firstContext = CreateDbContext())
+        {
+            firstContext.Add(new User(userName, "qwe", null));
+            await firstContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        using var secondContext = CreateDbContext();
+        var passwordHasher = new BCryptPasswordHasher(4);
+
+        var handler = new CreateTenantCommandHandler(secondContext, _mockTimeProvider, passwordHasher);
+
+        var command = new CreateTenantCommand(
+            Name: "FinGuard Global Ltd",
+            UserName: userName,
+            Password: "secure_hash_123",
+            Email: "dummyTest@email");
+
+        // Act
+        var result = async () => 
+        await handler.Handle(command, cancellationToken: TestContext.Current.CancellationToken);
+
+        // Assert
+       await result.Should()
+            .ThrowExactlyAsync<ConflictException>()
+            .WithMessage($"This username {command.UserName} is already taken!");
     }
 }

@@ -1,7 +1,9 @@
-﻿using FinGuard.Application.Commons.Interfaces;
+﻿using FinGuard.Application.Commons.Exceptions;
+using FinGuard.Application.Commons.Interfaces;
 using FinGuard.Domain.Entities;
 using FinGuard.Domain.ValueObjects;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinGuard.Application.Features.Tenants.Commands.CreateTenant;
 
@@ -25,6 +27,15 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, G
         CreateTenantCommand request,
         CancellationToken cancellationToken)
     {
+        var isUserExist = await _context.Users
+            .IgnoreQueryFilters()
+            .AnyAsync(u => u.UserName == request.UserName);
+
+        if (isUserExist)
+        {
+            throw new ConflictException($"This username {request.UserName} is already taken!");
+        }
+
         var newTenant = new Tenant(request.Name,  _timeProvider);
 
         _context.Tenants.Add(newTenant);
