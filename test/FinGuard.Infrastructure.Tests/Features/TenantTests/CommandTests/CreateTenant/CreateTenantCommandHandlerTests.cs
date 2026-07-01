@@ -6,20 +6,19 @@ using FinGuard.Infrastructure.Tests;
 using FinGuard.Infrastructure.Tests.Fixtures;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using NSubstitute;
+using Microsoft.Extensions.Time.Testing;
 
 namespace FinGuard.IntegrationTests.Features.TenantTests.CommandTests.CreateTenant;
 
 public class CreateTenantCommandHandlerTests : BaseIntegrationTest
 {
-    private readonly TimeProvider _mockTimeProvider;
-    private readonly DateTimeOffset _expectedTime;
+    private readonly FakeTimeProvider _fakeTimeProvider;
+    private readonly DateTimeOffset _fixedTime;
 
     public CreateTenantCommandHandlerTests(DbTestFixture fixture) : base(fixture)
     {
-        _expectedTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-        _mockTimeProvider = Substitute.For<TimeProvider>();
-        _mockTimeProvider.GetUtcNow().Returns(_expectedTime);
+        _fixedTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        _fakeTimeProvider = new FakeTimeProvider();
     }
 
     [Fact]
@@ -28,8 +27,9 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         // Arrange
         using var context = CreateDbContext();
         var passwordHasher = new BCryptPasswordHasher(4);
+        _fakeTimeProvider.SetUtcNow(_fixedTime);
 
-        var handler = new CreateTenantCommandHandler(context, _mockTimeProvider, passwordHasher);
+        var handler = new CreateTenantCommandHandler(context, _fakeTimeProvider, passwordHasher);
 
         var command = new CreateTenantCommand(
             Name: "FinGuard Global Ltd",
@@ -52,7 +52,7 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
             cancellationToken: TestContext.Current.CancellationToken);
         savedTenant.Should().NotBeNull();
         savedTenant.Name.Should().Be(command.Name);
-        savedTenant.CreatedAt.Should().Be(_expectedTime.UtcDateTime);
+        savedTenant.CreatedAt.Should().Be(_fixedTime.UtcDateTime);
 
         var savedUser = await readContext.Users.FirstOrDefaultAsync(
             cancellationToken: TestContext.Current.CancellationToken);
@@ -80,7 +80,7 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         using var secondContext = CreateDbContext();
         var passwordHasher = new BCryptPasswordHasher(4);
 
-        var handler = new CreateTenantCommandHandler(secondContext, _mockTimeProvider, passwordHasher);
+        var handler = new CreateTenantCommandHandler(secondContext, _fakeTimeProvider, passwordHasher);
 
         var command = new CreateTenantCommand(
             Name: "FinGuard Global Ltd",

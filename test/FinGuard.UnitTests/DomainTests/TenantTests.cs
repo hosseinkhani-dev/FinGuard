@@ -7,11 +7,11 @@ namespace FinGuard.UnitTests.DomainTests;
 
 public class TenantTests
 {
-    private readonly FakeTimeProvider _fakeClock;
+    private readonly DateTime _expectedCreatedAt;
+
     public TenantTests()
     {
-        _fakeClock = new FakeTimeProvider();
-        _fakeClock.SetUtcNow(new DateTime(2026, 01,01));
+        _expectedCreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     }
 
     [Fact]
@@ -24,12 +24,12 @@ public class TenantTests
         var name = "Dummy tenant name";
 
         // Act
-        var tenant = new Tenant(name, _fakeClock);
+        var tenant = new Tenant(name, _expectedCreatedAt);
 
         // Assert
         tenant.Id.Should().NotBeEmpty();
         tenant.Name.Should().Be(name);
-        tenant.CreatedAt.Should().Be(_fakeClock.GetUtcNow().UtcDateTime);
+        tenant.CreatedAt.Should().Be(_expectedCreatedAt);
         tenant.VelocityThresholdMultiplier.Should().Be(defaultVelocityThreshold);
         tenant.ZScoreThreshold.Should().Be(defaultZScoreThreshold);
     }
@@ -41,7 +41,7 @@ public class TenantTests
     public void Constructor_WithEmptyName_ShouldThrowDomainException(string invalidName)
     {
         // Arrange & Act
-        Action act = () => new Tenant(invalidName, _fakeClock);
+        Action act = () => new Tenant(invalidName, _expectedCreatedAt);
 
         // Assert
         act.Should().Throw<DomainException>()
@@ -53,7 +53,7 @@ public class TenantTests
     public void Constructor_WithInvalidCharacterName_ShouldThrowDomainException()
     {
         // Arrange & Act
-        Action act = () => new Tenant(new string('a', 51), _fakeClock);
+        Action act = () => new Tenant(new string('a', 51), _expectedCreatedAt);
 
         // Assert
         act.Should().Throw<DomainException>()
@@ -64,7 +64,7 @@ public class TenantTests
     public void UpdateThresholds_WithValidValues_ShouldUpdateProperties()
     {
         // Arrange
-        var tenant = new Tenant("Dummy tenant name", _fakeClock);
+        var tenant = new Tenant("Dummy tenant name", _expectedCreatedAt);
         double newVelocityMultiplier = 3.5;
         double newZScore = 2.5;
 
@@ -80,7 +80,7 @@ public class TenantTests
     public void UpdateThresholds_WithNegativeVelocityMultiplier_ShouldThrowDomainException()
     {
         // Arrange
-        var tenant = new Tenant("Dummy tenant name", _fakeClock);
+        var tenant = new Tenant("Dummy tenant name", _expectedCreatedAt);
         double invalidVelocityMultiplier = -1.5;
         double validZScore = 3.0;
 
@@ -96,7 +96,7 @@ public class TenantTests
     public void UpdateThresholds_WithNegativeZScore_ShouldThrowDomainException()
     {
         // Arrange
-        var tenant = new Tenant("Dummy tenant name", _fakeClock);
+        var tenant = new Tenant("Dummy tenant name", _expectedCreatedAt);
         double validVelocityMultiplier = 2.0;
         double invalidZScore = -0.5;
 

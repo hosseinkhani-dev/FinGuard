@@ -92,6 +92,25 @@ public class GlobalExceptionHandler : IExceptionHandler
             return true;
         }
 
+        // HTTP 401 Unauthorized
+        if (exception is UnauthorizedException unauthorizedException)
+        {
+            _logger.LogWarning("Resource not found: {Message}", exception.Message);
+
+            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+                Title = "Unauthorized.",
+                Detail = unauthorizedException.Message
+            };
+
+            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            return true;
+        }
+
         // HTTP 500 Error
         _logger.LogError(exception, "An unhandled exception occurred on the server.");
 

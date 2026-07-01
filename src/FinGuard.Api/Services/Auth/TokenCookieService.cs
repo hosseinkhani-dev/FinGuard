@@ -1,13 +1,16 @@
 ﻿
+using FinGuard.Application.Features.Auth.Commands.DTOs;
+
 namespace FinGuard.Api.Services.Auth;
 
 public class TokenCookieService : ITokenCookieService
 {
-    private const string CookieName = "X-Access-Token";
+    private const string AccessCookieName = "X-Access-Token";
+    private const string RefreshCookieName = "X-Refresh-Token";
 
-    public void AppendAccessToken(HttpResponse response, string token)
+    public void AppendAccessToken(HttpResponse response, TokenResultDto tokenResultDto)
     {
-        var cookieOptions = new CookieOptions
+        var accessCookieOptions = new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
@@ -15,16 +18,38 @@ public class TokenCookieService : ITokenCookieService
             Expires = DateTime.UtcNow.AddMinutes(15)
         };
 
-        response.Cookies.Append(CookieName, token, cookieOptions);
+        var refreshCookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTime.UtcNow.AddDays(7),
+            Path = "/api/auth/refresh"
+        };
+
+        response.Cookies.Append(AccessCookieName, tokenResultDto.AccessToken, accessCookieOptions);
+        response.Cookies.Append(RefreshCookieName, tokenResultDto.RefreshToken, refreshCookieOptions);
     }
 
     public void ClearAccessToken(HttpResponse response)
     {
-        response.Cookies.Delete(CookieName, new CookieOptions
+        
+
+        response.Cookies.Delete(AccessCookieName,
+            new CookieOptions
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax
-        });
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTime.UtcNow.AddMinutes(15)
+            });
+        response.Cookies.Delete(RefreshCookieName,
+            new CookieOptions 
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/api/auth/refresh" 
+            });
     }
 }

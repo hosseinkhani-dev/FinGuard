@@ -14,6 +14,9 @@ public class User : ITenant
     public Email? Email { get; private set; }
     public UserRole Role { get; private set; }
 
+    private readonly List<RefreshToken> _refreshTokens = new();
+    public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
+
     private User() { }
 
     public User(
@@ -58,5 +61,24 @@ public class User : ITenant
     public void UpdatePasswordHash(string passwordHash)
     {
         PasswordHash = passwordHash;
+    }
+
+    public void AddRefreshToken(string token, DateTime currentTime, DateTime expiryTime)
+    {
+        _refreshTokens.RemoveAll(r => r.IsExpired(currentTime));
+
+        if(_refreshTokens.Count >= 5)
+        {
+            var oldestToken = _refreshTokens.OrderBy(r => r.CreatedAt).First();
+            _refreshTokens.Remove(oldestToken);
+        }
+
+        _refreshTokens.Add(new RefreshToken(token, currentTime, expiryTime));
+    }
+
+    public void RevokeRefreshToken(string token)
+    {
+        var existingToken = _refreshTokens.FirstOrDefault(t => t.Token == token);
+        existingToken?.Revoke();
     }
 }

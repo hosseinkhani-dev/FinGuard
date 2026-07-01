@@ -1,5 +1,6 @@
 ﻿using FinGuard.Api.Services.Auth;
 using FinGuard.Application.Features.Auth.Commands.Login;
+using FinGuard.Application.Features.Auth.Commands.RefreshSessions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,11 +26,28 @@ namespace FinGuard.Api.Controllers
             [FromBody] LoginCommand command,
             CancellationToken cancellationToken)
         {
-            var token = await _mediator.Send(command, cancellationToken);
+            var tokenResultDto = await _mediator.Send(command, cancellationToken);
 
-            _tokenCookieService.AppendAccessToken(Response, token);
+            _tokenCookieService.AppendAccessToken(Response, tokenResultDto);
 
             return Ok(new { message = "Authentication successful." });
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
+        {
+            if (!Request.Cookies.TryGetValue("X-Refresh-Token", out var refreshToken))
+            {
+                return Unauthorized(new { message = "Missing refresh token context." });
+            }
+
+            var tokenResultDto = await _mediator.Send(
+                new RefreshSessionCommand(refreshToken),
+                cancellationToken);
+
+            _tokenCookieService.AppendAccessToken(Response, tokenResultDto);
+
+            return Ok(new { message = "Token successfully refreshed" });
         }
 
         [HttpPost("logout")]

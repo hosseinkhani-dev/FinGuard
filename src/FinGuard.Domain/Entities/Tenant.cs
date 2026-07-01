@@ -12,7 +12,7 @@ public class Tenant
 
     private Tenant() { }
 
-    public Tenant( string name, TimeProvider timeProvider)
+    public Tenant( string name, DateTime createdAt)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Tenant name cannot be empty.");
@@ -21,7 +21,7 @@ public class Tenant
 
         Id = Guid.NewGuid();
         Name = name;
-        CreatedAt = timeProvider.GetUtcNow().UtcDateTime;
+        CreatedAt = createdAt;
 
         // Default Thresholds
         VelocityThresholdMultiplier = 2.0; // 200%
