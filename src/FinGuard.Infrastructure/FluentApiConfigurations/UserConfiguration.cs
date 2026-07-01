@@ -22,5 +22,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("Email")
             .HasMaxLength(200)
             .IsRequired(false);
+
+        builder.OwnsMany(u => u.RefreshTokens, refreshToken =>
+        {
+            refreshToken.ToTable("UserRefreshTokens");
+            refreshToken.HasKey(r => r.Token);
+            refreshToken.Property(r => r.Token).HasMaxLength(128);
+            refreshToken.WithOwner().HasForeignKey("UserId");
+        });
     }
 }

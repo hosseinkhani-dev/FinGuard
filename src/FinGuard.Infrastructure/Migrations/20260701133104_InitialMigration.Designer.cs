@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinGuard.Infrastructure.Migrations
 {
     [DbContext(typeof(FinGuardDbContext))]
-    [Migration("20260621170547_InitialDatabase")]
-    partial class InitialDatabase
+    [Migration("20260701133104_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,7 +78,43 @@ namespace FinGuard.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("FinGuard.Domain.Entities.User", b =>
+                {
+                    b.OwnsMany("FinGuard.Domain.Entities.RefreshToken", "RefreshTokens", b1 =>
+                        {
+                            b1.Property<string>("Token")
+                                .HasMaxLength(128)
+                                .HasColumnType("nvarchar(128)");
+
+                            b1.Property<DateTime>("CreatedAt")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<DateTime>("ExpiryTime")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<bool>("IsRevoked")
+                                .HasColumnType("bit");
+
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.HasKey("Token");
+
+                            b1.HasIndex("UserId");
+
+                            b1.ToTable("UserRefreshTokens", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

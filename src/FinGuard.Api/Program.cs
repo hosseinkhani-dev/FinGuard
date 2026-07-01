@@ -26,8 +26,6 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddApplication();
 
-builder.Services.AddSingleton(TimeProvider.System);
-
 builder.Services.AddScoped<ITokenCookieService, TokenCookieService>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

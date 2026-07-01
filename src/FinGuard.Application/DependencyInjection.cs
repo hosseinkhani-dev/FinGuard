@@ -20,6 +20,8 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         });
 
+        services.AddSingleton(TimeProvider.System);
+
         return services;
     }
 }

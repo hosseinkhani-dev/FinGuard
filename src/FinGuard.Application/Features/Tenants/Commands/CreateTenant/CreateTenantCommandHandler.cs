@@ -36,7 +36,7 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, G
             throw new ConflictException($"This username {request.UserName} is already taken!");
         }
 
-        var newTenant = new Tenant(request.Name,  _timeProvider);
+        var newTenant = new Tenant(request.Name,  _timeProvider.GetUtcNow().UtcDateTime);
 
         _context.Tenants.Add(newTenant);
 
