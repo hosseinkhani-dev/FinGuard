@@ -1,4 +1,4 @@
-﻿using FinGuard.Infrastructure.MultiTenancy;
+﻿using FinGuard.Application.Commons.Interfaces;
 
 namespace FinGuard.Test.Shared;
 

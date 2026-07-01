@@ -1,4 +1,5 @@
 using FinGuard.Api.Infrastructures;
+using FinGuard.Api.Services.Auth;
 using FinGuard.Application;
 using FinGuard.Infrastructure;
 
@@ -27,6 +28,8 @@ builder.Services.AddApplication();
 
 builder.Services.AddSingleton(TimeProvider.System);
 
+builder.Services.AddScoped<ITokenCookieService, TokenCookieService>();
+
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddProblemDetails();
@@ -45,6 +48,8 @@ app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseCors("BlazorWasmPolicy");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
