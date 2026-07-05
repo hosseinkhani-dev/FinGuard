@@ -118,4 +118,16 @@ public class CreateTenantCommandValidatorTests
         result.ShouldHaveValidationErrorFor(x => x.Email)
               .WithErrorMessage("Email cannot be more than 200 character.");
     }
+
+    [Fact]
+    public void Validator_ShouldHaveError_WhenPasswordIsEmpty()
+    {
+        // Arrange
+        var command = new CreateTenantCommand("Acme Corp", "admin", "", null);
+        // Act
+        var result = _validator.TestValidate(command);
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.Password)
+              .WithErrorMessage("Password cannot be empty.");
+    }
 }

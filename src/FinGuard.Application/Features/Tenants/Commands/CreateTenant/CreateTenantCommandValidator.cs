@@ -14,6 +14,9 @@ public class CreateTenantCommandValidator : AbstractValidator<CreateTenantComman
             .NotEmpty().WithMessage("UserName cannot be empty.")
             .MaximumLength(50).WithMessage("UserName cannot be more than 50 character.");
 
+        RuleFor(u => u.Password)
+            .NotEmpty().WithMessage("Password cannot be empty.");
+            
         RuleFor(x => x.Email)
             .Must(email => email!.Contains("@"))
             .WithMessage("Invalid email address format.")

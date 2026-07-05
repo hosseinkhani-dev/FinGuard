@@ -2,6 +2,7 @@
 using FinGuard.Application.Features.Auth.Commands.Login;
 using FinGuard.Application.Features.Auth.Commands.RefreshSessions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinGuard.Api.Controllers
@@ -55,6 +56,18 @@ namespace FinGuard.Api.Controllers
         {
             _tokenCookieService.ClearAccessToken(Response);
             return Ok(new { message = "Logged out successfully." });
+        }
+
+        [HttpGet("me")]
+        public IActionResult GetCurrentUserState()
+        {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return Ok(new { isAuthenticated = false });
+            }
+
+            var claims = User.Claims.ToDictionary(c => c.Type, c => c.Value);
+            return Ok(new { isAuthenticated = true, userName = User.Identity.Name, claims });
         }
     }
 }

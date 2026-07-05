@@ -106,4 +106,16 @@ public class UserTests
         act.Should().Throw<DomainException>()
            .WithMessage("Cannot reassign a user to a different tenant.");
     }
+
+    [Fact]
+    public void Constructor_WithEmptyPassword_ShouldThrowDomainException()
+    {
+        var userName = "Dummy userName";
+        var email = new Email("dummy@email");
+        // Act 
+        Action act = () => new User(userName, string.Empty, email);
+        // Assert
+        act.Should().Throw<DomainException>()
+           .WithMessage("Password cannot be empty.");
+    }
 }

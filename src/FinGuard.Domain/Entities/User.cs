@@ -26,7 +26,7 @@ public class User : ITenant
     {
         Id = Guid.NewGuid();
         SetUserName(userName);
-        PasswordHash = passwordHash;
+        SetPasswordHash(passwordHash);
         Email = email;
         Role = UserRole.Auditor;
     }
@@ -60,6 +60,13 @@ public class User : ITenant
 
     public void UpdatePasswordHash(string passwordHash)
     {
+       SetPasswordHash(passwordHash);
+    }
+
+    public void SetPasswordHash(string passwordHash)
+    {
+        if (string.IsNullOrWhiteSpace(passwordHash))
+            throw new DomainException("Password cannot be empty.");
         PasswordHash = passwordHash;
     }
 

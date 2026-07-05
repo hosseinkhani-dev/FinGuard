@@ -1,0 +1,60 @@
+﻿@page
+@model FinGuard.UI.Pages.Tenants.CreateModel
+@{
+    ViewData["Title"] = "Create Tenant";
+}
+
+
+<div class="d-flex align-items-center justify-content-center" style="min-height: 75vh;">
+    <div class="col-md-6 col-lg-5 w-100 border p-4 rounded shadow-sm bg-white" style="max-width: 500px;">
+
+        @* Success Notification Block *@
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show w-100 mb-3 shadow-sm"
+            role="alert"
+            style="max-width: 500px;">
+                <i class="bi bi-check-circle-fill me-2"></i> @Model.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <h2 class="text-center mb-4">Create Tenant</h2>
+
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Input.Name" class="form-label fw-bold">Tenant Name</label>
+                <input asp-for="Input.Name" class="form-control" placeholder="Enter tenant name" />
+                <span asp-validation-for="Input.Name" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Input.UserName" class="form-label fw-bold">Admin Username</label>
+                <input asp-for="Input.UserName" class="form-control" placeholder="Enter username" />
+                <span asp-validation-for="Input.UserName" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Input.Password" class="form-label fw-bold">Password</label>
+                <input asp-for="Input.Password" type="password" class="form-control" placeholder="Enter password" />
+                <span asp-validation-for="Input.Password" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Input.Email" class="form-label fw-bold">Email Address (Optional)</label>
+                <input asp-for="Input.Email" class="form-control" placeholder="username@example.com" />
+                <span asp-validation-for="Input.Email" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-block">Create Tenant</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

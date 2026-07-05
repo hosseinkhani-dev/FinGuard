@@ -35,13 +35,14 @@ public static class DependencyInjection
             });
         });
 
-        // IFinGuardDbContext injection
+        // Injection
         services.AddScoped<IFinGuardDbContext>(provider =>
             provider.GetRequiredService<FinGuardDbContext>());
         services.AddScoped<ITenantProvider, TenantProvider>();
         services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
+        // JWT configurations
         var jwtSecret = configuration["JwtSettings:Secret"]
                         ?? throw new InvalidOperationException("JWT Secret missing!");
         var key = Encoding.UTF8.GetBytes(jwtSecret);
@@ -54,7 +55,7 @@ public static class DependencyInjection
         .AddJwtBearer(options =>
         {
             options.RequireHttpsMetadata = true;
-            options.SaveToken = true;
+            options.SaveToken = false;
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
