@@ -9,11 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("BlazorWasmPolicy", policy =>
+    options.AddPolicy("RazorPagesPolicy", policy =>
     {
-        policy.WithOrigins("https://localhost:1405") // The URL of the Blazor UI
+        policy.WithOrigins("https://localhost:1405") // The URL of the UI
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -45,7 +46,7 @@ app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
-app.UseCors("BlazorWasmPolicy");
+app.UseCors("RazorPagesPolicy");
 
 app.UseAuthentication();
 

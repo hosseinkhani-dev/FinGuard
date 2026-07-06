@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace FinGuard.UI.Infrastructures;
+namespace FinGuard.UI.Infrastructure.Api;
 
 public static class ApiErrorHandler
 {
