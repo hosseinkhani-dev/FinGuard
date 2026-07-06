@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FinGuard.Infrastructure\FinGuard.Infrastructure.csproj" />
-    <ProjectReference Include="..\FinGuard.Test.Shared\FinGuard.Test.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

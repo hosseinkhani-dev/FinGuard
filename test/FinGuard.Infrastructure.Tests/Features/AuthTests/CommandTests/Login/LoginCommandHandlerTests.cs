@@ -2,6 +2,7 @@
 using FinGuard.Application.Commons.Interfaces;
 using FinGuard.Application.Features.Auth.Commands.Login;
 using FinGuard.Domain.Entities;
+using FinGuard.Domain.Enums;
 using FinGuard.Infrastructure.Security;
 using FinGuard.Infrastructure.Tests;
 using FinGuard.Infrastructure.Tests.Fixtures;
@@ -42,7 +43,7 @@ public class LoginCommandHandlerTests : BaseIntegrationTest
 
         using (var seedContext = CreateDbContext())
         {
-            var user = new User(userName, hashedPassword, null);
+            var user = new User(userName, hashedPassword, UserRole.Admin, null);
             seedContext.Users.Add(user);
             await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }

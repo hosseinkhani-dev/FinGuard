@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinGuard.Infrastructure.Migrations
 {
     [DbContext(typeof(FinGuardDbContext))]
-    [Migration("20260701133104_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260706120223_InitialDatabase")]
+    partial class InitialDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

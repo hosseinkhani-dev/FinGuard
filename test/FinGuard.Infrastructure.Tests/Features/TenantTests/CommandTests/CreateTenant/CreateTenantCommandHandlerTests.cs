@@ -1,6 +1,7 @@
 ﻿using FinGuard.Application.Commons.Exceptions;
 using FinGuard.Application.Features.Tenants.Commands.CreateTenant;
 using FinGuard.Domain.Entities;
+using FinGuard.Domain.Enums;
 using FinGuard.Infrastructure.Security;
 using FinGuard.Infrastructure.Tests;
 using FinGuard.Infrastructure.Tests.Fixtures;
@@ -59,6 +60,7 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         savedUser.Should().NotBeNull();
         savedUser.UserName.Should().Be(command.UserName);
         savedUser.TenantId.Should().Be(tenantId);
+        savedUser.Role.Should().Be(UserRole.Admin);
         savedUser.Email!.EmailAddress.Should().Be(command.Email);
         passwordHasher.VerifyPassword(command.Password, savedUser.PasswordHash)
             .Should().BeTrue();
@@ -73,7 +75,7 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = Guid.NewGuid();
         using (var firstContext = CreateDbContext())
         {
-            firstContext.Add(new User(userName, "qwe", null));
+            firstContext.Add(new User(userName, "qwe", UserRole.Admin, null));
             await firstContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 

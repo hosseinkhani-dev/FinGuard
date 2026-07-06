@@ -2,6 +2,7 @@
 using FinGuard.Application.Commons.Interfaces;
 using FinGuard.Application.Features.Auth.Commands.RefreshSessions;
 using FinGuard.Domain.Entities;
+using FinGuard.Domain.Enums;
 using FinGuard.Infrastructure.Tests;
 using FinGuard.Infrastructure.Tests.Fixtures;
 using FluentAssertions;
@@ -36,7 +37,7 @@ public class RefreshSessionCommandHandlerTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = Guid.NewGuid();
         using var context = CreateDbContext();
 
-        var user = new User("dummy-username", "securePassword", null);
+        var user = new User("dummy-username", "securePassword", UserRole.Admin, null);
         user.AddRefreshToken(initialRefreshToken, _fixedTime, _fixedTime.AddDays(7));
         context.Users.Add(user);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -94,7 +95,7 @@ public class RefreshSessionCommandHandlerTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = Guid.NewGuid();
         using var context = CreateDbContext();
 
-        var user = new User("dummy-username", "securePassword", null);
+        var user = new User("dummy-username", "securePassword", UserRole.Admin, null);
         user.AddRefreshToken(initialRefreshToken, _fixedTime, _fixedTime.AddHours(1));
         context.Users.Add(user);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -120,7 +121,7 @@ public class RefreshSessionCommandHandlerTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = Guid.NewGuid();
         using var context = CreateDbContext();
 
-        var user = new User("dummy-username", "securePassword", null);
+        var user = new User("dummy-username", "securePassword", UserRole.Admin, null);
         user.AddRefreshToken(initialRefreshToken, _fixedTime, _fixedTime.AddHours(1));
         var refreshToken = user.RefreshTokens.First();
         refreshToken.Revoke();

@@ -1,6 +1,5 @@
 ﻿using FinGuard.Application.Features.Tenants.Commands.CreateTenant;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinGuard.Api.Controllers

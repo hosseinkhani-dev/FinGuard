@@ -1,6 +1,7 @@
 ﻿using FinGuard.Application.Commons.Exceptions;
 using FinGuard.Application.Commons.Interfaces;
 using FinGuard.Domain.Entities;
+using FinGuard.Domain.Enums;
 using FinGuard.Domain.ValueObjects;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +47,7 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, G
 
         string hashedPassword = _passwordHasher.HashPassword(request.Password);
 
-        var newUser = new User(request.UserName, hashedPassword, userEmail);
+        var newUser = new User(request.UserName, hashedPassword, UserRole.Admin, userEmail);
         newUser.AssignTenant(newTenant.Id);
 
         _context.Users.Add(newUser);

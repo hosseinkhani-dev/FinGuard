@@ -1,4 +1,5 @@
 ﻿using FinGuard.Domain.Entities;
+using FinGuard.Domain.Enums;
 using FinGuard.Infrastructure.Tests.Fixtures;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,7 @@ public class FinGuardDbContextTests : BaseIntegrationTest
         using var context = CreateDbContext();
 
         // Act
-        var newUser = new User("dummy-user-name", "dummy-password", null);
+        var newUser = new User("dummy-user-name", "dummy-password", UserRole.Admin, null);
         context.Users.Add(newUser);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -44,14 +45,14 @@ public class FinGuardDbContextTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = tenant1Id;
         using (var context = CreateDbContext())
         {
-            context.Users.Add(new User("first-user-name", "first-user-pass", null));
+            context.Users.Add(new User("first-user-name", "first-user-pass", UserRole.Admin, null));
             await context.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         TenantProvider.CurrentTenantId = tenant2Id;
         using(var context = CreateDbContext())
         {
-            context.Users.Add(new User("second-user-name", "second-pass-user", null));
+            context.Users.Add(new User("second-user-name", "second-pass-user", UserRole.Admin, null));
             await context.SaveChangesAsync (TestContext.Current.CancellationToken);
         }
 

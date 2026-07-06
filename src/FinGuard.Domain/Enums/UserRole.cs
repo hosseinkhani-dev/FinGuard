@@ -2,5 +2,6 @@
 
 public enum UserRole : byte
 {
-    Auditor = 1,
+    Admin = 1,
+    Auditor = 2,
 }

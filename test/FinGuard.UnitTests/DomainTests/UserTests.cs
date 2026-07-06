@@ -17,7 +17,7 @@ public class UserTests
         var email = new Email("dummy@email");
 
         // Act
-        var user = new User( userName, passwordHash, email);
+        var user = new User( userName, passwordHash, UserRole.Auditor, email);
 
         // Assert
         user.Id.Should().NotBeEmpty();
@@ -34,7 +34,7 @@ public class UserTests
     public void Constructor_WithInvalidUserName_ShouldThrowDomainException(string invalidName)
     {
         // Arrange & Act
-        Action act = () => new User( invalidName, "hash", null);
+        Action act = () => new User( invalidName, "hash", UserRole.Admin, null);
 
         // Assert
         act.Should().Throw<DomainException>()
@@ -48,7 +48,7 @@ public class UserTests
         var longName = new string('a', 51);
 
         // Act
-        Action act = () => new User( longName, "hash", null);
+        Action act = () => new User( longName, "hash", UserRole.Admin, null);
 
         // Assert
         act.Should().Throw<DomainException>()
@@ -77,7 +77,7 @@ public class UserTests
         var passwordHash = "dummy-password-hash";
         var email = new Email("dummy@email");
 
-        var user = new User(userName, passwordHash, email);
+        var user = new User(userName, passwordHash, UserRole.Admin, email);
 
         // Act 
         Action act = () => user.AssignTenant(invalidTenantId);
@@ -95,7 +95,7 @@ public class UserTests
         var passwordHash = "dummy-password-hash";
         var email = new Email("dummy@email");
 
-        var user = new User(userName, passwordHash, email);
+        var user = new User(userName, passwordHash, UserRole.Admin, email);
 
         user.AssignTenant(tenantId);
 
@@ -113,7 +113,7 @@ public class UserTests
         var userName = "Dummy userName";
         var email = new Email("dummy@email");
         // Act 
-        Action act = () => new User(userName, string.Empty, email);
+        Action act = () => new User(userName, string.Empty, UserRole.Admin, email);
         // Assert
         act.Should().Throw<DomainException>()
            .WithMessage("Password cannot be empty.");

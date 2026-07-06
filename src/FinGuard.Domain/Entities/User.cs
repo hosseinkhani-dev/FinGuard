@@ -22,13 +22,14 @@ public class User : ITenant
     public User(
         string userName,
         string passwordHash,
+        UserRole role,
         Email? email)
     {
         Id = Guid.NewGuid();
         SetUserName(userName);
         SetPasswordHash(passwordHash);
+        Role = role;
         Email = email;
-        Role = UserRole.Auditor;
     }
 
     public void AssignTenant(Guid tenantId)
