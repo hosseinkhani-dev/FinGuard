@@ -1,5 +1,5 @@
 ﻿using FinGuard.UI.Common;
-using FinGuard.UI.Infrastructures;
+using FinGuard.UI.Infrastructure.Api;
 using FinGuard.UI.Models.Tenants;
 
 namespace FinGuard.UI.Services.Tenants;

@@ -1,0 +1,36 @@
+﻿@page "/Auth/Login"
+@model FinGuard.UI.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="d-flex align-items-center justify-content-center" style="min-height: 75vh;">
+    <div class="col-md-6 col-lg-5 w-100 border p-4 rounded shadow-sm bg-white" style="max-width: 500px;">
+
+        <h2 class="text-center mb-4">Sign In</h2>
+
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Input.UserName" class="form-label fw-bold">Username</label>
+                <input asp-for="Input.UserName" class="form-control" placeholder="Enter username" required autocomplete="username" />
+                <span asp-validation-for="Input.UserName" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Input.Password" class="form-label fw-bold">Password</label>
+                <input asp-for="Input.Password" type="password" class="form-control" placeholder="Enter password" required autocomplete="current-password" />
+                <span asp-validation-for="Input.Password" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

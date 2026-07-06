@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -46,6 +45,8 @@ public static class DependencyInjection
         var jwtSecret = configuration["JwtSettings:Secret"]
                         ?? throw new InvalidOperationException("JWT Secret missing!");
         var key = Encoding.UTF8.GetBytes(jwtSecret);
+
+        services.AddAuthorization();
 
         services.AddAuthentication(options =>
         {

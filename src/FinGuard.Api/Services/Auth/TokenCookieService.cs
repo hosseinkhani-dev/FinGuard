@@ -7,15 +7,24 @@ public class TokenCookieService : ITokenCookieService
 {
     private const string AccessCookieName = "X-Access-Token";
     private const string RefreshCookieName = "X-Refresh-Token";
+    private readonly IConfiguration _configuration;
+
+    public TokenCookieService(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
 
     public void AppendAccessToken(HttpResponse response, TokenResultDto tokenResultDto)
     {
+        var expiryMinutes = Convert.ToDouble(_configuration["JwtSettings:ExpiryMinutes"] ?? "15");
+
         var accessCookieOptions = new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Lax,
-            Expires = DateTime.UtcNow.AddMinutes(15)
+            Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
+            Path = "/"
         };
 
         var refreshCookieOptions = new CookieOptions
@@ -33,15 +42,13 @@ public class TokenCookieService : ITokenCookieService
 
     public void ClearAccessToken(HttpResponse response)
     {
-        
-
         response.Cookies.Delete(AccessCookieName,
             new CookieOptions
         {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddMinutes(15)
+                Path = "/"
             });
         response.Cookies.Delete(RefreshCookieName,
             new CookieOptions 
