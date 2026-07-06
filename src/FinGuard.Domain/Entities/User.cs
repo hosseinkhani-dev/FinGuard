@@ -13,6 +13,7 @@ public class User : ITenant
     public string PasswordHash { get; private set; }
     public Email? Email { get; private set; }
     public UserRole Role { get; private set; }
+    public bool IsActive { get; private set; }
 
     private readonly List<RefreshToken> _refreshTokens = new();
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
@@ -30,6 +31,7 @@ public class User : ITenant
         SetPasswordHash(passwordHash);
         Role = role;
         Email = email;
+        IsActive = true;
     }
 
     public void AssignTenant(Guid tenantId)
@@ -41,6 +43,16 @@ public class User : ITenant
             throw new DomainException("Cannot reassign a user to a different tenant.");
 
         TenantId = tenantId;
+    }
+
+    public void Activate()
+    {
+        IsActive = true;
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
     }
 
     public void UpdateUserName(string userName)

@@ -58,6 +58,9 @@ namespace FinGuard.Infrastructure.Migrations
                         .HasColumnType("nvarchar(200)")
                         .HasColumnName("Email");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

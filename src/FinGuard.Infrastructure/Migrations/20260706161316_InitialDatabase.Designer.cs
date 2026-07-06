@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinGuard.Infrastructure.Migrations
 {
     [DbContext(typeof(FinGuardDbContext))]
-    [Migration("20260706120223_InitialDatabase")]
+    [Migration("20260706161316_InitialDatabase")]
     partial class InitialDatabase
     {
         /// <inheritdoc />
@@ -60,6 +60,9 @@ namespace FinGuard.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)")
                         .HasColumnName("Email");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
