@@ -9,16 +9,22 @@ using FinGuard.Infrastructure.Tests.Fixtures;
 using FinGuard.IntegrationTests.Builders;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Time.Testing;
 
 namespace FinGuard.IntegrationTests.Features.UserTests.CommandTests.CreateUser;
 
 public class CreateUserCommandHandlerTests : BaseIntegrationTest
 {
     private readonly IPasswordHasher _passwordHasher;
+    private readonly FakeTimeProvider _fakeTimeProvider;
+    private readonly DateTimeOffset _fixedTime;
 
     public CreateUserCommandHandlerTests(DbTestFixture fixture) : base(fixture)
     {
         _passwordHasher = new BCryptPasswordHasher(4);
+        _fixedTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        _fakeTimeProvider = new FakeTimeProvider();
+        _fakeTimeProvider.SetUtcNow(_fixedTime);
     }
 
     [Fact]
@@ -38,7 +44,7 @@ public class CreateUserCommandHandlerTests : BaseIntegrationTest
 
         TenantProvider.CurrentTenantId = tenant.Id;
         Email newUserEmail = new Email("newUser@email");
-        var handler = new CreateUserCommandHandler(context, _passwordHasher);
+        var handler = new CreateUserCommandHandler(context, _passwordHasher, _fakeTimeProvider);
         var command = new CreateUserCommand(
             UserName: "newUser",
             Password: "123",
@@ -56,6 +62,7 @@ public class CreateUserCommandHandlerTests : BaseIntegrationTest
         expectedUser.UserName.Should().Be(command.UserName);
         expectedUser.Email!.EmailAddress.Should().Be(command.Email);
         expectedUser.Role.Should().Be(UserRole.Auditor);
+        expectedUser.CreatedAt.Should().Be(_fixedTime.UtcDateTime);
         _passwordHasher.VerifyPassword(
         command.Password, expectedUser.PasswordHash).Should().BeTrue();
     }
@@ -75,7 +82,7 @@ public class CreateUserCommandHandlerTests : BaseIntegrationTest
         context.Users.Add(existingUser);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new CreateUserCommandHandler(context, _passwordHasher);
+        var handler = new CreateUserCommandHandler(context, _passwordHasher, _fakeTimeProvider);
         var command = new CreateUserCommand(
             UserName: existingUser.UserName,
             Password: "newPassword");

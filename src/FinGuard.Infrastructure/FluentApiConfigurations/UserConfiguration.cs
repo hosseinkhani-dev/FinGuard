@@ -15,13 +15,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasIndex(u => u.UserName).IsUnique();
 
-        builder.Property(u => u.Email)
-            .HasConversion(
-            email => email != null ? email.EmailAddress : null,
-            value => value != null ? new Email(value) : null)
-            .HasColumnName("Email")
-            .HasMaxLength(200)
-            .IsRequired(false);
+        builder.OwnsOne(u => u.Email, emailBuilder =>
+        {
+            emailBuilder.Property(e => e.EmailAddress)
+                .HasColumnName("Email")
+                .HasMaxLength(200)
+                .IsRequired(false);
+        });
 
         builder.OwnsMany(u => u.RefreshTokens, refreshToken =>
         {

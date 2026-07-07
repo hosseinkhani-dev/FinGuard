@@ -12,13 +12,16 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Guid>
 {
     private readonly IFinGuardDbContext _context;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly TimeProvider _timeProvider;
 
     public CreateUserCommandHandler(
         IFinGuardDbContext context,
-        IPasswordHasher passwordHasher)
+        IPasswordHasher passwordHasher,
+        TimeProvider timeProvider)
     {
         _context = context;
         _passwordHasher = passwordHasher;
+        _timeProvider = timeProvider;
     }
 
     public async Task<Guid> Handle(
@@ -36,7 +39,11 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Guid>
 
         string hashedPassword = _passwordHasher.HashPassword(request.Password);
 
-        var newUser = new User(request.UserName, hashedPassword, UserRole.Auditor, email);
+        var newUser = new User(request.UserName,
+            hashedPassword,
+            UserRole.Auditor,
+            email,
+            _timeProvider.GetUtcNow().UtcDateTime);
 
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync(cancellationToken);

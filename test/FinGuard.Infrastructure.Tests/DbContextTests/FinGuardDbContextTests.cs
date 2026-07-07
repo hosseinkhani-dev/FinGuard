@@ -1,6 +1,7 @@
 ﻿using FinGuard.Domain.Entities;
 using FinGuard.Domain.Enums;
 using FinGuard.Infrastructure.Tests.Fixtures;
+using FinGuard.IntegrationTests.Builders;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +23,12 @@ public class FinGuardDbContextTests : BaseIntegrationTest
         using var context = CreateDbContext();
 
         // Act
-        var newUser = new User("dummy-user-name", "dummy-password", UserRole.Admin, null);
+        var newUser = new UserBuilder()
+            .WithUserName("dummy-user-name")
+            .WithPassword("dummy-password")
+            .WithRole(UserRole.Admin)
+            .WithEmail(string.Empty)
+            .Build();
         context.Users.Add(newUser);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -45,15 +51,27 @@ public class FinGuardDbContextTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = tenant1Id;
         using (var context = CreateDbContext())
         {
-            context.Users.Add(new User("first-user-name", "first-user-pass", UserRole.Admin, null));
+            var user = new UserBuilder()
+           .WithUserName("first-user-name")
+           .WithPassword("first-user-pass")
+           .WithRole(UserRole.Admin)
+           .WithEmail(null)
+           .Build();
+            context.Users.Add(user);
             await context.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         TenantProvider.CurrentTenantId = tenant2Id;
-        using(var context = CreateDbContext())
+        using (var context = CreateDbContext())
         {
-            context.Users.Add(new User("second-user-name", "second-pass-user", UserRole.Admin, null));
-            await context.SaveChangesAsync (TestContext.Current.CancellationToken);
+            var user = new UserBuilder()
+                .WithUserName("second-user-name")
+                .WithPassword("second-pass-user")
+                .WithRole(UserRole.Admin)
+                .WithEmail(null)
+                .Build();
+            context.Users.Add(user);
+            await context.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         // Act

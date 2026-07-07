@@ -4,10 +4,17 @@ using FinGuard.Domain.Exceptions;
 using FinGuard.Domain.ValueObjects;
 using FluentAssertions;
 
-namespace FinGuard.Domain.Tests;
+namespace FinGuard.UnitTests.DomainTests;
 
 public class UserTests
 {
+    private readonly DateTime _expectedCreatedAt;
+
+    public UserTests()
+    {
+        _expectedCreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    }
+
     [Fact]
     public void Constructor_WithValidData_ShouldInitializeCorrectly()
     {
@@ -17,7 +24,11 @@ public class UserTests
         var email = new Email("dummy@email");
 
         // Act
-        var user = new User( userName, passwordHash, UserRole.Auditor, email);
+        var user = new User( userName,
+            passwordHash,
+            UserRole.Auditor,
+            email,
+            _expectedCreatedAt);
 
         // Assert
         user.Id.Should().NotBeEmpty();
@@ -25,6 +36,7 @@ public class UserTests
         user.PasswordHash.Should().Be(passwordHash);
         user.Email.Should().Be(email);
         user.Role.Should().Be(UserRole.Auditor);
+        user.CreatedAt.Should().Be(_expectedCreatedAt);
     }
 
     [Theory]
@@ -34,7 +46,11 @@ public class UserTests
     public void Constructor_WithInvalidUserName_ShouldThrowDomainException(string invalidName)
     {
         // Arrange & Act
-        Action act = () => new User( invalidName, "hash", UserRole.Admin, null);
+        Action act = () => new User( invalidName,
+            "hash",
+            UserRole.Admin,
+            null,
+            _expectedCreatedAt);
 
         // Assert
         act.Should().Throw<DomainException>()
@@ -48,7 +64,11 @@ public class UserTests
         var longName = new string('a', 51);
 
         // Act
-        Action act = () => new User( longName, "hash", UserRole.Admin, null);
+        Action act = () => new User( longName,
+            "hash",
+            UserRole.Admin,
+            null,
+            _expectedCreatedAt);
 
         // Assert
         act.Should().Throw<DomainException>()
@@ -77,7 +97,7 @@ public class UserTests
         var passwordHash = "dummy-password-hash";
         var email = new Email("dummy@email");
 
-        var user = new User(userName, passwordHash, UserRole.Admin, email);
+        var user = new User(userName, passwordHash, UserRole.Admin, email, _expectedCreatedAt);
 
         // Act 
         Action act = () => user.AssignTenant(invalidTenantId);
@@ -95,7 +115,7 @@ public class UserTests
         var passwordHash = "dummy-password-hash";
         var email = new Email("dummy@email");
 
-        var user = new User(userName, passwordHash, UserRole.Admin, email);
+        var user = new User(userName, passwordHash, UserRole.Admin, email, _expectedCreatedAt);
 
         user.AssignTenant(tenantId);
 
@@ -113,9 +133,25 @@ public class UserTests
         var userName = "Dummy userName";
         var email = new Email("dummy@email");
         // Act 
-        Action act = () => new User(userName, string.Empty, UserRole.Admin, email);
+        Action act = () => new User(userName, string.Empty, UserRole.Admin, email, _expectedCreatedAt);
         // Assert
         act.Should().Throw<DomainException>()
            .WithMessage("Password cannot be empty.");
+    }
+
+    [Fact]
+    public void Deactivate_AdminUser_ShouldThrowDomainException()
+    {
+        var userName = "Dummy userName";
+        var passwordHash = "dummy-password-hash";
+        var email = new Email("dummy@email");
+        var adminUser = new User(userName, passwordHash, UserRole.Admin, email, _expectedCreatedAt);
+
+        // Act
+        Action act = () => adminUser.Deactivate();
+
+        // Assert
+        act.Should().Throw<DomainException>()
+           .WithMessage("Admin user cannot be deactivated.");
     }
 }

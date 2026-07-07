@@ -10,6 +10,7 @@ public class UserBuilder
     private string _password = "defaultPassword";
     private UserRole _role = UserRole.Admin;
     private Email? _email = null;
+    private DateTime _createdAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     public UserBuilder WithUserName(string userName)
     {
@@ -26,14 +27,20 @@ public class UserBuilder
         _role = role;
         return this;
     }
-    public UserBuilder WithEmail(string email)
+    public UserBuilder WithEmail(string? email)
     {
-        _email = new Email(email);
+        _email = string.IsNullOrWhiteSpace(email) ? null : new Email(email);
+        return this;
+    }
+
+    public UserBuilder WithCreateTime(DateTime createdAt)
+    {
+        _createdAt = createdAt;
         return this;
     }
 
     public User Build()
     {
-        return new User(_userName, _password, _role, _email);
+        return new User(_userName, _password, _role, _email, _createdAt);
     }
 }

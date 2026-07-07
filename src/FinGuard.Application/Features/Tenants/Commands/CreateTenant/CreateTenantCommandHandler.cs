@@ -47,7 +47,11 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, G
 
         string hashedPassword = _passwordHasher.HashPassword(request.Password);
 
-        var newUser = new User(request.UserName, hashedPassword, UserRole.Admin, userEmail);
+        var newUser = new User(request.UserName,
+            hashedPassword,
+            UserRole.Admin,
+            userEmail,
+            _timeProvider.GetUtcNow().UtcDateTime);
         newUser.AssignTenant(newTenant.Id);
 
         _context.Users.Add(newUser);

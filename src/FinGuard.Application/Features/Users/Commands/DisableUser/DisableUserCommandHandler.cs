@@ -16,8 +16,8 @@ public class DisableUserCommandHandler : IRequestHandler<DisableUserCommand>
 
     public async Task Handle(DisableUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(
-            u => u.Id == request.Id, cancellationToken);
+        var user = await _context.Users
+            .FirstOrDefaultAsync( u => u.Id == request.Id, cancellationToken);
 
         if (user is null)
             throw new NotFoundException($"User not found.");

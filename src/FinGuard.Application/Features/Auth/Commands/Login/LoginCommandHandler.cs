@@ -41,6 +41,11 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, TokenResultDto>
             throw new NotFoundException("Username or Password not exist!");
         }
 
+        if (!user.IsActive)
+        {
+            throw new UnauthorizedException("User is not active!");
+        }
+
         var initialRefreshToken = GenerateSecureRandomString();
 
         var currentTime = _timeProvider.GetUtcNow().UtcDateTime;

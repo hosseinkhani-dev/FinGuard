@@ -29,21 +29,21 @@ public class UsersController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("disable")]
+    [HttpPatch("{id:guid}/disable")]
     public async Task<IActionResult> DisableUser(
-        [FromBody] DisableUserCommand command,
+        Guid id,
         CancellationToken cancellationToken)
     {
-        await _sender.Send(command, cancellationToken);
-        return Ok();
+        await _sender.Send(new DisableUserCommand(id), cancellationToken);
+        return NoContent();
     }
 
-    [HttpPatch("activate")]
+    [HttpPatch("{id:guid}/activate")]
     public async Task<IActionResult> ActivateUser(
-        [FromBody] ActivateUserCommand command,
+        Guid id,
         CancellationToken cancellationToken)
     {
-        await _sender.Send(command, cancellationToken);
+        await _sender.Send(new ActivateUserCommand(id), cancellationToken);
         return Ok();
     }
 }

@@ -37,7 +37,7 @@ public class RefreshSessionCommandHandlerTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = Guid.NewGuid();
         using var context = CreateDbContext();
 
-        var user = new User("dummy-username", "securePassword", UserRole.Admin, null);
+        var user = new User("dummy-username", "securePassword", UserRole.Admin, null, _fixedTime);
         user.AddRefreshToken(initialRefreshToken, _fixedTime, _fixedTime.AddDays(7));
         context.Users.Add(user);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -95,7 +95,7 @@ public class RefreshSessionCommandHandlerTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = Guid.NewGuid();
         using var context = CreateDbContext();
 
-        var user = new User("dummy-username", "securePassword", UserRole.Admin, null);
+        var user = new User("dummy-username", "securePassword", UserRole.Admin, null, _fixedTime);
         user.AddRefreshToken(initialRefreshToken, _fixedTime, _fixedTime.AddHours(1));
         context.Users.Add(user);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -121,7 +121,7 @@ public class RefreshSessionCommandHandlerTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = Guid.NewGuid();
         using var context = CreateDbContext();
 
-        var user = new User("dummy-username", "securePassword", UserRole.Admin, null);
+        var user = new User("dummy-username", "securePassword", UserRole.Admin, null, _fixedTime);
         user.AddRefreshToken(initialRefreshToken, _fixedTime, _fixedTime.AddHours(1));
         var refreshToken = user.RefreshTokens.First();
         refreshToken.Revoke();

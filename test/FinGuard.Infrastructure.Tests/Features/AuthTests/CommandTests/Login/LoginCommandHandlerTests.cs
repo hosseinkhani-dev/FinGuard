@@ -36,6 +36,7 @@ public class LoginCommandHandlerTests : BaseIntegrationTest
         string password = "Password123!";
         string expectedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
         var tenantId = Guid.NewGuid();
+        _fakeTimeProvider.SetUtcNow(_fixedTime);
 
         string hashedPassword = _passwordHasher.HashPassword(password);
 
@@ -43,15 +44,13 @@ public class LoginCommandHandlerTests : BaseIntegrationTest
 
         using (var seedContext = CreateDbContext())
         {
-            var user = new User(userName, hashedPassword, UserRole.Admin, null);
+            var user = new User(userName, hashedPassword, UserRole.Admin, null, _fixedTime.UtcDateTime);
             seedContext.Users.Add(user);
             await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         using var context = CreateDbContext();
         _mockJwtTokenGenerator.GenerateToken(Arg.Any<User>()).Returns(expectedToken);
-
-        _fakeTimeProvider.SetUtcNow(_fixedTime);
 
         var handler = new LoginCommandHandler(context, _mockJwtTokenGenerator, _passwordHasher, _fakeTimeProvider);
         var command = new LoginCommand(userName, password);
@@ -93,5 +92,34 @@ public class LoginCommandHandlerTests : BaseIntegrationTest
         await action.Should()
             .ThrowAsync<NotFoundException>()
             .WithMessage("Username or Password not exist!");
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowUnauthorizedException_WhenUserIsNotActive()
+    {
+        // Arrange
+        string userName = "inactive_user";
+        string password = "Password123!";
+        string hashedPassword = _passwordHasher.HashPassword(password);
+        var tenantId = Guid.NewGuid();
+        TenantProvider.CurrentTenantId = tenantId;
+        using (var seedContext = CreateDbContext())
+        {
+            var user = new User(userName, hashedPassword, UserRole.Auditor, null, _fixedTime.UtcDateTime);
+            user.Deactivate();
+            seedContext.Users.Add(user);
+            await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+        using var context = CreateDbContext();
+        var handler = new LoginCommandHandler(context, _mockJwtTokenGenerator, _passwordHasher, _fakeTimeProvider);
+        var command = new LoginCommand(userName, password);
+
+        // Act
+        var action = async () => await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        await action.Should()
+            .ThrowAsync<UnauthorizedException>()
+            .WithMessage("User is not active!");
     }
 }

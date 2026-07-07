@@ -62,6 +62,7 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         savedUser.TenantId.Should().Be(tenantId);
         savedUser.Role.Should().Be(UserRole.Admin);
         savedUser.Email!.EmailAddress.Should().Be(command.Email);
+        savedUser.CreatedAt.Should().Be(_fixedTime.UtcDateTime);
         passwordHasher.VerifyPassword(command.Password, savedUser.PasswordHash)
             .Should().BeTrue();
     }
@@ -75,7 +76,7 @@ public class CreateTenantCommandHandlerTests : BaseIntegrationTest
         TenantProvider.CurrentTenantId = Guid.NewGuid();
         using (var firstContext = CreateDbContext())
         {
-            firstContext.Add(new User(userName, "qwe", UserRole.Admin, null));
+            firstContext.Add(new User(userName, "qwe", UserRole.Admin, null, _fixedTime.UtcDateTime));
             await firstContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 

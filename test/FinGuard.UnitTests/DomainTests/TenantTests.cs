@@ -1,7 +1,6 @@
 ﻿using FinGuard.Domain.Entities;
 using FinGuard.Domain.Exceptions;
 using FluentAssertions;
-using Microsoft.Extensions.Time.Testing;
 
 namespace FinGuard.UnitTests.DomainTests;
 

@@ -1,5 +1,6 @@
 ﻿using FinGuard.Application.Commons.Exceptions;
 using FinGuard.Application.Features.Users.Commands.ActivateUser;
+using FinGuard.Domain.Enums;
 using FinGuard.Infrastructure.Tests;
 using FinGuard.Infrastructure.Tests.Fixtures;
 using FinGuard.IntegrationTests.Builders;
@@ -20,7 +21,7 @@ public class ActivateUserCommandHandlerTests : BaseIntegrationTest
         // Arrange
         using var context = CreateDbContext();
 
-        var user = new UserBuilder().Build();
+        var user = new UserBuilder().WithRole(UserRole.Auditor).Build();
         user.Deactivate();
         context.Users.Add(user);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);

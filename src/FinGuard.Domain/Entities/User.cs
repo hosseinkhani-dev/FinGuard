@@ -14,6 +14,7 @@ public class User : ITenant
     public Email? Email { get; private set; }
     public UserRole Role { get; private set; }
     public bool IsActive { get; private set; }
+    public DateTime CreatedAt { get; set; }
 
     private readonly List<RefreshToken> _refreshTokens = new();
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
@@ -24,7 +25,8 @@ public class User : ITenant
         string userName,
         string passwordHash,
         UserRole role,
-        Email? email)
+        Email? email,
+        DateTime createdAt)
     {
         Id = Guid.NewGuid();
         SetUserName(userName);
@@ -32,6 +34,7 @@ public class User : ITenant
         Role = role;
         Email = email;
         IsActive = true;
+        CreatedAt = createdAt;
     }
 
     public void AssignTenant(Guid tenantId)
@@ -52,6 +55,9 @@ public class User : ITenant
 
     public void Deactivate()
     {
+        if(Role == UserRole.Admin)
+            throw new DomainException("Admin user cannot be deactivated.");
+
         IsActive = false;
     }
 

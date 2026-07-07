@@ -1,5 +1,6 @@
 ﻿using FinGuard.Application.Commons.Exceptions;
 using FinGuard.Application.Features.Users.Commands.DisableUser;
+using FinGuard.Domain.Enums;
 using FinGuard.Infrastructure.Tests;
 using FinGuard.Infrastructure.Tests.Fixtures;
 using FinGuard.IntegrationTests.Builders;
@@ -20,7 +21,7 @@ public class DisableUserCommandHandlerTests : BaseIntegrationTest
         // Arrange
         using var context = CreateDbContext();
 
-        var user = new UserBuilder().Build();
+        var user = new UserBuilder().WithRole(UserRole.Auditor).Build();
         context.Users.Add(user);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
