@@ -12,14 +12,10 @@ namespace FinGuard.Api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly ISender _mediator;
-        private readonly ITokenCookieService _tokenCookieService;
 
-        public AuthController(
-            ISender mediator,
-            ITokenCookieService tokenCookieService)
+        public AuthController(ISender mediator)
         {
             _mediator = mediator;
-            _tokenCookieService = tokenCookieService;
         }
 
         [HttpPost("login")]
@@ -29,45 +25,23 @@ namespace FinGuard.Api.Controllers
         {
             var tokenResultDto = await _mediator.Send(command, cancellationToken);
 
-            _tokenCookieService.AppendAccessToken(Response, tokenResultDto);
-
-            return Ok(new { message = "Authentication successful." });
+            return Ok(tokenResultDto);
         }
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
         {
-            if (!Request.Cookies.TryGetValue("X-Refresh-Token", out var refreshToken))
+            if (!Request.Cookies.TryGetValue(
+                "X-Refresh-Token", out var refreshToken))
             {
-                return Unauthorized(new { message = "Missing refresh token context." });
+                return Unauthorized();
             }
 
             var tokenResultDto = await _mediator.Send(
                 new RefreshSessionCommand(refreshToken),
                 cancellationToken);
 
-            _tokenCookieService.AppendAccessToken(Response, tokenResultDto);
-
-            return Ok(new { message = "Token successfully refreshed" });
-        }
-
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            _tokenCookieService.ClearAccessToken(Response);
-            return Ok(new { message = "Logged out successfully." });
-        }
-
-        [HttpGet("me")]
-        public IActionResult GetCurrentUserState()
-        {
-            if (User.Identity == null || !User.Identity.IsAuthenticated)
-            {
-                return Ok(new { isAuthenticated = false });
-            }
-
-            var claims = User.Claims.ToDictionary(c => c.Type, c => c.Value);
-            return Ok(new { isAuthenticated = true, userName = User.Identity.Name, claims });
+            return Ok(tokenResultDto);
         }
     }
 }

@@ -1,6 +1,10 @@
 ﻿using FinGuard.UI.Common;
 using FinGuard.UI.Infrastructure.Api;
 using FinGuard.UI.Models.Auth;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace FinGuard.UI.Services.Auth;
 
@@ -22,21 +26,77 @@ public class AuthService : IAuthService
 
     public async Task<ServiceResult<bool>> LoginAsync(LoginInputModel input)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/auth/login", input);
+        var response = await _httpClient.PostAsJsonAsync(
+        "api/auth/login",
+        input);
+
 
         if (!response.IsSuccessStatusCode)
         {
-            return ServiceResult<bool>.Failure(await ApiErrorHandler.ParseErrorsAsync(response));
+            return ServiceResult<bool>.Failure(
+                await ApiErrorHandler.ParseErrorsAsync(response));
         }
 
-        var currentResponse = _httpContextAccessor.HttpContext?.Response;
-        if (currentResponse != null && response.Headers.TryGetValues("Set-Cookie", out var cookieValues))
+
+        var tokens = await response.Content
+            .ReadFromJsonAsync<TokenResultDto>();
+
+
+        if (tokens == null)
         {
-            foreach (var cookie in cookieValues)
-            {
-                currentResponse.Headers.Append("Set-Cookie", cookie);
-            }
+            return ServiceResult<bool>.Failure(
+                "Token response was empty.");
         }
+
+        var jwt = new JwtSecurityTokenHandler()
+            .ReadJwtToken(tokens.AccessToken);
+
+        var claims = jwt.Claims
+            .Where(c => c.Type != "role")
+            .ToList();
+
+
+        var roleClaim = jwt.Claims
+            .FirstOrDefault(c => c.Type == "role");
+
+        if (roleClaim != null)
+        {
+            claims.Add(new Claim(
+                ClaimTypes.Role,
+                roleClaim.Value));
+        }
+
+        // Store tokens inside the UI authentication cookie
+        claims.Add(new Claim(
+            "access_token",
+            tokens.AccessToken));
+
+        claims.Add(new Claim(
+            "refresh_token",
+            tokens.RefreshToken));
+
+
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            ClaimTypes.Name,
+            ClaimTypes.Role);
+
+
+        var principal = new ClaimsPrincipal(identity);
+
+
+        await _httpContextAccessor.HttpContext!
+            .SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            new AuthenticationProperties
+            {
+            IsPersistent = true,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+            });
+
+
 
         return ServiceResult<bool>.Success(true);
     }
@@ -44,24 +104,18 @@ public class AuthService : IAuthService
     public async Task LogoutAsync()
     {
         var context = _httpContextAccessor.HttpContext;
+
         if (context == null)
             return;
 
         try
         {
-            var response = await _httpClient.PostAsync("api/auth/logout", null);
-
-            if (response.Headers.TryGetValues("Set-Cookie", out var cookieHeaders))
-            {
-                foreach (var cookie in cookieHeaders)
-                {
-                    context.Response.Headers.Append("Set-Cookie", cookie);
-                }
-            }
+            await context.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "Logout request failed.");
+            _logger.LogError(ex, "Logout failed.");
         }
     }
 

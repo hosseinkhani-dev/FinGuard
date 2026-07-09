@@ -1,8 +1,5 @@
 using FinGuard.UI.Infrastructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,59 +7,25 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddApiServices(builder.Configuration);
 
-var jwtSecret = builder.Configuration["JwtSettings:Secret"]
-                        ?? throw new InvalidOperationException("JWT Secret missing!");
-var key = Encoding.UTF8.GetBytes(jwtSecret);
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = true;
-    options.SaveToken = false;
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-        ValidateAudience = true,
-        ValidAudience = builder.Configuration["JwtSettings:Audience"],
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero,
-        NameClaimType = ClaimTypes.Name,
-        RoleClaimType = ClaimTypes.Role
-    };
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/AccessDenied";
 
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            // Search incoming browser cookies for the authentication token
-            if (context.Request.Cookies.TryGetValue("X-Access-Token", out var token))
-            {
-                context.Token = token;
-            }
-            return Task.CompletedTask;
-        },
+        options.Cookie.Name = "FinGuard.Auth";
 
-        OnChallenge = context =>
-        {
-            // Stop the default JWT engine from sending a 401 text payload
-            context.HandleResponse();
+        options.Cookie.HttpOnly = true;
 
-            // Construct the return URL for seamless redirection after authentication
-            var returnUrl = context.Request.Path + context.Request.QueryString;
-            var loginUrl = $"/Auth/Login?ReturnUrl={Uri.EscapeDataString(returnUrl)}";
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 
-            context.Response.Redirect(loginUrl);
-            return Task.CompletedTask;
-        }
-    };
-});
+        options.Cookie.SameSite = SameSiteMode.Lax;
+
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+
+        options.SlidingExpiration = true;
+    });
 
 builder.Services.AddAuthorization();
 

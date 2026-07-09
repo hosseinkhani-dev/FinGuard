@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace FinGuard.UI.Pages
 {
@@ -13,14 +11,8 @@ namespace FinGuard.UI.Pages
             _logger = logger;
         }
 
-        public IActionResult OnGet()
+        public void OnGet()
         {
-            var isAuth = User.Identity?.IsAuthenticated;
-            var name = User.Identity?.Name;
-            var claims = User.Claims.Select(c => $"{c.Type}: {c.Value}");
-
-            return Content(
-                $"Authenticated: {isAuth}\nName: {name}\nClaims:\n{string.Join("\n", claims)}");
         }
     }
 

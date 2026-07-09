@@ -20,24 +20,30 @@ public static class DependencyInjection
 
         // Core infrastructure required for Cookie propagation
         services.AddHttpContextAccessor();
-        services.AddTransient<CookiePropagationHandler>();
+        services.AddHttpClient(
+            "AuthRefreshClient",
+            client =>
+            {
+                client.BaseAddress = new Uri(backendUrl);
+            }).ConfigurePrimaryHttpMessageHandler(() =>
+            new HttpClientHandler
+            {
+                        UseCookies = false
+            });
+
+        services.AddTransient<BearerTokenHandler>();
         services.AddTransient<TokenRefreshHandler>();
+        services.AddScoped<TokenSessionService>();
 
         // Dependency Injections
         services.AddHttpClient<ITenantService, TenantService>(configureClient)
-            .AddHttpMessageHandler<CookiePropagationHandler>()
-            .AddHttpMessageHandler<TokenRefreshHandler>()
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false });
+            .AddHttpMessageHandler<BearerTokenHandler>();
 
-        services.AddHttpClient<IAuthService, AuthService>(configureClient)
-            .AddHttpMessageHandler<CookiePropagationHandler>()
-            .AddHttpMessageHandler<TokenRefreshHandler>()
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false });
+        services.AddHttpClient<IAuthService, AuthService>(configureClient);
 
         services.AddHttpClient<IUserService, UserService>(configureClient)
-            .AddHttpMessageHandler<CookiePropagationHandler>()
             .AddHttpMessageHandler<TokenRefreshHandler>()
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false });
+            .AddHttpMessageHandler<BearerTokenHandler>();
 
         return services;
     }
