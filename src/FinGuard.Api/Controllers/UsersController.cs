@@ -1,6 +1,8 @@
 ﻿using FinGuard.Application.Features.Users.Commands.ActivateUser;
 using FinGuard.Application.Features.Users.Commands.CreateUser;
 using FinGuard.Application.Features.Users.Commands.DisableUser;
+using FinGuard.Application.Features.Users.Queries.GetAllUsers;
+using FinGuard.Application.Features.Users.Queries.GetUser;
 using FinGuard.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -44,6 +46,26 @@ public class UsersController : ControllerBase
         CancellationToken cancellationToken)
     {
         await _sender.Send(new ActivateUserCommand(id), cancellationToken);
-        return Ok();
+        return NoContent();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllUsers(
+        [FromQuery] GetAllUsersQuery query,
+        CancellationToken cancellationToken)
+    {
+        var users = await _sender.Send(query, cancellationToken);
+
+        return Ok(users);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetUser(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var user = await _sender.Send(new GetUserQuery(id), cancellationToken);
+
+        return Ok(user);
     }
 }

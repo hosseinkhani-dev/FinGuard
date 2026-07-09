@@ -26,14 +26,18 @@ public static class DependencyInjection
         // Dependency Injections
         services.AddHttpClient<ITenantService, TenantService>(configureClient)
             .AddHttpMessageHandler<CookiePropagationHandler>()
+            .AddHttpMessageHandler<TokenRefreshHandler>()
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false });
 
         services.AddHttpClient<IAuthService, AuthService>(configureClient)
             .AddHttpMessageHandler<CookiePropagationHandler>()
+            .AddHttpMessageHandler<TokenRefreshHandler>()
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false });
 
         services.AddHttpClient<IUserService, UserService>(configureClient)
-            .AddHttpMessageHandler<CookiePropagationHandler>();
+            .AddHttpMessageHandler<CookiePropagationHandler>()
+            .AddHttpMessageHandler<TokenRefreshHandler>()
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false });
 
         return services;
     }

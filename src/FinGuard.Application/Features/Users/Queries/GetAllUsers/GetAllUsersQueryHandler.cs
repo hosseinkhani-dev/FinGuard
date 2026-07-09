@@ -37,13 +37,12 @@ public class GetAllUsersQueryHandler :
         }
 
         return await query
-            .OrderBy(user => user.CreatedAt)
+            .OrderByDescending(user => user.CreatedAt)
             .Select(user => new GetAllUserDto
             {
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email != null ? user.Email.EmailAddress : null,
-                Role = user.Role.ToString(),
                 ActiveStatus = user.IsActive ? "Active" : "Inactive"
             })
             .ToListAsync(cancellationToken);

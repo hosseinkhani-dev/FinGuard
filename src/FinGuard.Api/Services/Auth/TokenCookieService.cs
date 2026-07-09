@@ -33,7 +33,7 @@ public class TokenCookieService : ITokenCookieService
             Secure = true,
             SameSite = SameSiteMode.Lax,
             Expires = DateTime.UtcNow.AddDays(7),
-            Path = "/api/auth/refresh"
+            Path = "/"
         };
 
         response.Cookies.Append(AccessCookieName, tokenResultDto.AccessToken, accessCookieOptions);
@@ -56,7 +56,7 @@ public class TokenCookieService : ITokenCookieService
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Lax,
-                Path = "/api/auth/refresh" 
+                Path = "/" 
             });
     }
 }

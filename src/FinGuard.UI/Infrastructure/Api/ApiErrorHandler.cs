@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Text.Json;
 
 namespace FinGuard.UI.Infrastructure.Api;
 
@@ -10,25 +12,32 @@ public static class ApiErrorHandler
 
         try
         {
-            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                var validationDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
-                if (validationDetails?.Errors != null)
+                var validationDetails = JsonSerializer.Deserialize<ValidationProblemDetails>(json);
+
+                if (validationDetails?.Errors?.Count > 0)
                 {
                     return validationDetails.Errors.ToDictionary(
                         kvp => kvp.Key,
-                        kvp => kvp.Value.ToList()
-                    );
+                        kvp => kvp.Value.ToList());
                 }
             }
 
-            var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            var errorMessage = problemDetails?.Detail ?? problemDetails?.Title ?? "An unexpected error occurred.";
+            var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(json);
+
+            var errorMessage = problemDetails?.Detail
+                ?? problemDetails?.Title
+                ?? "An unexpected error occurred.";
+
             errors.Add(string.Empty, new List<string> { errorMessage });
         }
         catch
         {
-            errors.Add(string.Empty, new List<string> { $"Server error status code: {response.StatusCode}" });
+            errors.Add(string.Empty,
+                new List<string> { $"Server error status code: {(int)response.StatusCode}" });
         }
 
         return errors;

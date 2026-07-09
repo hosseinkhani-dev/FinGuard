@@ -1,6 +1,6 @@
-﻿namespace FinGuard.Application.Features.Users.Queries.GetAllUsers;
+﻿namespace FinGuard.Application.Features.Users.Queries.GetUser;
 
-public record GetAllUserDto()
+public record GetUserDto
 {
     public Guid Id { get; init; }
     public string UserName { get; init; } = string.Empty;

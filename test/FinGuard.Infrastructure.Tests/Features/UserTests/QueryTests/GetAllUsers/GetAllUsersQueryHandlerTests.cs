@@ -1,5 +1,4 @@
 ﻿using FinGuard.Application.Features.Users.Queries.GetAllUsers;
-using FinGuard.Domain.Entities;
 using FinGuard.Domain.Enums;
 using FinGuard.Infrastructure.Tests;
 using FinGuard.Infrastructure.Tests.Fixtures;
