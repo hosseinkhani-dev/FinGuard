@@ -1,5 +1,4 @@
-﻿using FinGuard.Api.Services.Auth;
-using FinGuard.Application.Features.Auth.Commands.Login;
+﻿using FinGuard.Application.Features.Auth.Commands.Login;
 using FinGuard.Application.Features.Auth.Commands.RefreshSessions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

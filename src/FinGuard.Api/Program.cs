@@ -1,5 +1,4 @@
 using FinGuard.Api.Infrastructures;
-using FinGuard.Api.Services.Auth;
 using FinGuard.Application;
 using FinGuard.Infrastructure;
 
@@ -26,8 +25,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddApplication();
-
-builder.Services.AddScoped<ITokenCookieService, TokenCookieService>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
