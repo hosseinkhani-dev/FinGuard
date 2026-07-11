@@ -1,6 +1,7 @@
 ﻿using FinGuard.UI.Infrastructure.Api;
 using FinGuard.UI.Services.Auth;
 using FinGuard.UI.Services.Tenants;
+using FinGuard.UI.Services.TransactionFiles;
 using FinGuard.UI.Services.Users;
 
 namespace FinGuard.UI.Infrastructure;
@@ -42,6 +43,10 @@ public static class DependencyInjection
         services.AddHttpClient<IAuthService, AuthService>(configureClient);
 
         services.AddHttpClient<IUserService, UserService>(configureClient)
+            .AddHttpMessageHandler<TokenRefreshHandler>()
+            .AddHttpMessageHandler<BearerTokenHandler>();
+
+        services.AddHttpClient<ITransactionFileService, TransactionFileService>(configureClient)
             .AddHttpMessageHandler<TokenRefreshHandler>()
             .AddHttpMessageHandler<BearerTokenHandler>();
 

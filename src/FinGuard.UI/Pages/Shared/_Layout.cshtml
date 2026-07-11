@@ -33,6 +33,13 @@
                                 <a class="nav-link text-secondary fw-medium px-3" asp-area="" asp-page="/Users/Index">User Management</a>
                             </li>
                         }
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-secondary fw-medium px-3" asp-area="" asp-page="/TransactionFiles/Index">Transaction File</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-secondary fw-medium px-3" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
