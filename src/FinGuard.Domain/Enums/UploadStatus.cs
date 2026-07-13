@@ -1,8 +1,8 @@
 ﻿namespace FinGuard.Domain.Enums;
 
-public enum FileStatus : byte
+public enum UploadStatus : byte
 {
-    Uploaded = 1,
+    Pending = 1,
     Processing = 2,
     Completed = 3,
     Failed = 4

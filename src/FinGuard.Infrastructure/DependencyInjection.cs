@@ -1,8 +1,11 @@
 ﻿using FinGuard.Application.Commons.Interfaces;
 using FinGuard.Infrastructure.Auth;
+using FinGuard.Infrastructure.CurrentUsers;
 using FinGuard.Infrastructure.MultiTenancy;
 using FinGuard.Infrastructure.Persistence;
 using FinGuard.Infrastructure.Security;
+using FinGuard.Infrastructure.Storages;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,11 +22,20 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddHttpContextAccessor();
-
         var connectionString = configuration.GetConnectionString("DefaultConnectionString")
-                               ?? throw new ArgumentNullException("Connection string not found");
+                              ?? throw new ArgumentNullException("Connection string not found");
 
+        // Injection
+        services.AddScoped<IFinGuardDbContext>(provider =>
+            provider.GetRequiredService<FinGuardDbContext>());
+        services.AddScoped<ITenantProvider, TenantProvider>();
+        services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IFileStorage, LocalFileStorage>();
+        services.AddScoped<ICurrentUser, CurrentUser>();
+
+
+        // database configurations
         services.AddDbContext<FinGuardDbContext>(options =>
         {
             options.UseSqlServer(connectionString, sqlOptions =>
@@ -34,13 +46,6 @@ public static class DependencyInjection
                     errorNumbersToAdd: null);
             });
         });
-
-        // Injection
-        services.AddScoped<IFinGuardDbContext>(provider =>
-            provider.GetRequiredService<FinGuardDbContext>());
-        services.AddScoped<ITenantProvider, TenantProvider>();
-        services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
-        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         // JWT configurations
         var jwtSecret = configuration["JwtSettings:Secret"]
@@ -85,6 +90,15 @@ public static class DependencyInjection
                 }
             };
         });
+
+        // Hangfire Configurations
+        services.AddHangfire(conf => conf
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(connectionString));
+
+        services.AddHangfireServer();
 
 
         return services;

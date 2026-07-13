@@ -19,6 +19,7 @@ public class FinGuardDbContext : DbContext, IFinGuardDbContext
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<TransactionFile> TransactionFiles => Set<TransactionFile>();
 
     public Guid CurrentTenantId => _tenantProvider.GetTenantId();
 
