@@ -47,6 +47,60 @@ namespace FinGuard.Infrastructure.Migrations
                     b.ToTable("Tenants");
                 });
 
+            modelBuilder.Entity("FinGuard.Domain.Entities.Transaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("CardNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmployeeName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Merchant")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("TransactionFileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransactionFileId");
+
+                    b.ToTable("Transactions");
+                });
+
             modelBuilder.Entity("FinGuard.Domain.Entities.TransactionFile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -137,6 +191,17 @@ namespace FinGuard.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("FinGuard.Domain.Entities.Transaction", b =>
+                {
+                    b.HasOne("FinGuard.Domain.Entities.TransactionFile", "TransactionFile")
+                        .WithMany("Transactions")
+                        .HasForeignKey("TransactionFileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("TransactionFile");
+                });
+
             modelBuilder.Entity("FinGuard.Domain.Entities.User", b =>
                 {
                     b.OwnsMany("FinGuard.Domain.Entities.RefreshToken", "RefreshTokens", b1 =>
@@ -188,6 +253,11 @@ namespace FinGuard.Infrastructure.Migrations
                     b.Navigation("Email");
 
                     b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("FinGuard.Domain.Entities.TransactionFile", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

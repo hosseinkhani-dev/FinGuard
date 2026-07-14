@@ -1,6 +1,8 @@
 ﻿using FinGuard.Application.Commons.Interfaces;
 using FinGuard.Infrastructure.Auth;
 using FinGuard.Infrastructure.CurrentUsers;
+using FinGuard.Infrastructure.Hangfire;
+using FinGuard.Infrastructure.MiniExcel;
 using FinGuard.Infrastructure.MultiTenancy;
 using FinGuard.Infrastructure.Persistence;
 using FinGuard.Infrastructure.Security;
@@ -25,7 +27,7 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnectionString")
                               ?? throw new ArgumentNullException("Connection string not found");
 
-        // Injection
+        #region Dependency Injections
         services.AddScoped<IFinGuardDbContext>(provider =>
             provider.GetRequiredService<FinGuardDbContext>());
         services.AddScoped<ITenantProvider, TenantProvider>();
@@ -33,9 +35,11 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IFileStorage, LocalFileStorage>();
         services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
+        services.AddScoped<ITransactionFileReader, MiniExcelTransactionFileReader>();
+        #endregion
 
-
-        // database configurations
+        #region Database Configurations
         services.AddDbContext<FinGuardDbContext>(options =>
         {
             options.UseSqlServer(connectionString, sqlOptions =>
@@ -46,8 +50,9 @@ public static class DependencyInjection
                     errorNumbersToAdd: null);
             });
         });
+        #endregion
 
-        // JWT configurations
+        #region JWT Configurations
         var jwtSecret = configuration["JwtSettings:Secret"]
                         ?? throw new InvalidOperationException("JWT Secret missing!");
         var key = Encoding.UTF8.GetBytes(jwtSecret);
@@ -90,8 +95,9 @@ public static class DependencyInjection
                 }
             };
         });
+        #endregion
 
-        // Hangfire Configurations
+        #region Hangfire Configurations
         services.AddHangfire(conf => conf
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
         .UseSimpleAssemblyNameTypeSerializer()
@@ -99,7 +105,7 @@ public static class DependencyInjection
         .UseSqlServerStorage(connectionString));
 
         services.AddHangfireServer();
-
+        #endregion
 
         return services;
     }

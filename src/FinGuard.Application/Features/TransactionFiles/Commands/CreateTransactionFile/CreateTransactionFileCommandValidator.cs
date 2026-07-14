@@ -5,12 +5,12 @@ namespace FinGuard.Application.Features.TransactionFiles.Commands.CreateTransact
 public class CreateTransactionFileCommandValidator : 
     AbstractValidator<CreateTransactionFileCommand>
 {
-    private const long MaxFileSize = 100 * 1024 * 1024;
+    private const long MaxFileSize = 10 * 1024 * 1024;
 
     public CreateTransactionFileCommandValidator()
     {
         RuleFor(x => x.FileSize)
             .LessThan(MaxFileSize)
-            .WithMessage("File size cannot be bigger than 100 MB");
+            .WithMessage("File size cannot be bigger than 10 MB");
     }
 }

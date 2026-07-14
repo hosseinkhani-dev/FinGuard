@@ -8,6 +8,7 @@ public interface IFinGuardDbContext
     DbSet<Tenant> Tenants { get; }
     DbSet<User> Users { get; }
     DbSet<TransactionFile> TransactionFiles { get; }
+    DbSet<Transaction> Transactions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

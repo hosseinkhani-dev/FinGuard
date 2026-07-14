@@ -21,6 +21,11 @@ public class TransactionFile : ITenant
     public DateTime? FailedAt { get; private set; }
     public string? FailureReason { get; private set; }
 
+    // Navigation Properties
+    private readonly List<Transaction> _transactions = new();
+    public IReadOnlyCollection<Transaction> Transactions =>
+        _transactions.AsReadOnly();
+
     private TransactionFile() { }
 
     public TransactionFile(
@@ -31,8 +36,8 @@ public class TransactionFile : ITenant
         long fileSize,
         DateTime createdAt)
     {
-        if(fileSize > (100 * 1024 * 1024)) // 100MB
-            throw new DomainException("File size cannot be bigger than 100 MB");
+        if(fileSize > (10 * 1024 * 1024)) // 10MB
+            throw new DomainException("File size cannot be bigger than 10 MB");
 
         if (originalFileName.Length > 50 || storedFileName.Length > 50)
             throw new DomainException("file name cannot be more than 50 character");
@@ -52,9 +57,6 @@ public class TransactionFile : ITenant
 
     public void StartProcessing(DateTime startedAt)
     {
-        if(Status != UploadStatus.Pending)
-            throw new DomainException("Upload is not pending.");
-
         Status = UploadStatus.Processing;
         ProcessingStartedAt = startedAt;
     }
@@ -79,5 +81,14 @@ public class TransactionFile : ITenant
         Status = UploadStatus.Failed;
         FailedAt = failedDate;
         FailureReason = reason;
+    }
+
+    public void ResetToPending()
+    {
+        if (Status != UploadStatus.Processing)
+            throw new DomainException("Upload is not processing.");
+
+        Status = UploadStatus.Pending;
+        ProcessingStartedAt = null;
     }
 }

@@ -20,6 +20,7 @@ public class FinGuardDbContext : DbContext, IFinGuardDbContext
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<User> Users => Set<User>();
     public DbSet<TransactionFile> TransactionFiles => Set<TransactionFile>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
 
     public Guid CurrentTenantId => _tenantProvider.GetTenantId();
 
@@ -56,7 +57,6 @@ public class FinGuardDbContext : DbContext, IFinGuardDbContext
 
         return base.SaveChangesAsync(cancellationToken);
     }
-
 
     // e => e.TenantId == _tenantProvider.GetTenantId()
     private LambdaExpression ConvertFilterExpression(Type type)

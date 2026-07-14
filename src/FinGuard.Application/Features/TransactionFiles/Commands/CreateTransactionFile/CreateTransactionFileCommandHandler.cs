@@ -10,15 +10,18 @@ public class CreateTransactionFileCommandHandler :
     private readonly IFinGuardDbContext _context;
     private readonly ICurrentUser _currentUser;
     private readonly TimeProvider _timeProvider;
+    private readonly IBackgroundJobService _backgroundJobService;
 
     public CreateTransactionFileCommandHandler(
         IFinGuardDbContext context,
         ICurrentUser currentUser,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IBackgroundJobService backgroundJobService)
     {
         _context = context;
         _currentUser = currentUser;
         _timeProvider = timeProvider;
+        _backgroundJobService = backgroundJobService;
     }
 
 
@@ -34,6 +37,8 @@ public class CreateTransactionFileCommandHandler :
 
         _context.TransactionFiles.Add(transactionFile);
         await _context.SaveChangesAsync(cancellationToken);
+
+        _backgroundJobService.EnqueueProcessTransactionFile(transactionFile.Id);
 
         return transactionFile.Id;
     }
