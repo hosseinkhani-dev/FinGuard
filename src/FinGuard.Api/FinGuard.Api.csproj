@@ -24,4 +24,8 @@
     <ProjectReference Include="..\FinGuard.Infrastructure\FinGuard.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Storage\" />
+  </ItemGroup>
+
 </Project>

@@ -1,8 +1,10 @@
 ﻿using FinGuard.Application.Features.TransactionFiles.Commands.ProcessTransactionFile;
+using Hangfire;
 using MediatR;
 
 namespace FinGuard.Infrastructure.Jobs;
 
+[AutomaticRetry(Attempts = 0)]
 public class ProcessTransactionFileJob
 {
     private readonly ISender _mediator;

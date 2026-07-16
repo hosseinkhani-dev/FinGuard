@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
 
-namespace FinGuard.IntegrationTests.Features.TransactionFileTests.CommandTests.CreateTransaction;
+namespace FinGuard.IntegrationTests.Features.TransactionFileTests.CommandTests.CreateTransactionFile;
 
 public class CreateTransactionCommandHandlerTests : BaseIntegrationTest
 {
@@ -15,6 +15,7 @@ public class CreateTransactionCommandHandlerTests : BaseIntegrationTest
     private readonly FakeTimeProvider _fakeTimeProvider;
     private readonly DateTimeOffset _fixedTime;
     private readonly Guid _currentUserId;
+    private readonly IBackgroundJobService _backgroundJobService;
 
     public CreateTransactionCommandHandlerTests(DbTestFixture fixture) : base(fixture)
     {
@@ -25,6 +26,7 @@ public class CreateTransactionCommandHandlerTests : BaseIntegrationTest
         _fixedTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
         _fakeTimeProvider = new FakeTimeProvider();
         _fakeTimeProvider.SetUtcNow(_fixedTime);
+        _backgroundJobService = Substitute.For<IBackgroundJobService>();
     }
 
     [Fact]
@@ -35,7 +37,8 @@ public class CreateTransactionCommandHandlerTests : BaseIntegrationTest
         using var context = CreateDbContext();
         TenantProvider.CurrentTenantId = tenantId;
 
-        var handler = new CreateTransactionFileCommandHandler(context, _currentUser, _fakeTimeProvider);
+        var handler = new CreateTransactionFileCommandHandler(
+            context, _currentUser, _fakeTimeProvider, _backgroundJobService);
         var command = new CreateTransactionFileCommand(
             OriginalFileName: "receipt.pdf",
             StoredFileName: "unique-guid-receipt.pdf",

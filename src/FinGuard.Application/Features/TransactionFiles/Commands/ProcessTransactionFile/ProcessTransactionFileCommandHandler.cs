@@ -48,19 +48,13 @@ public class ProcessTransactionFileCommandHandler :
 
             await _context.SaveChangesAsync(cancellationToken);
         }
-        catch(ImportValidationException ex)
+        catch(Exception ex)
         {
             transactionFile.Fail(
                 _timeProvider.GetUtcNow().UtcDateTime, ex.Message);
             await _context.SaveChangesAsync(cancellationToken);
-        }
-        catch(Exception)
-        {
-            transactionFile.ResetToPending();
-            await _context.SaveChangesAsync(cancellationToken);
 
             throw;
         }
-
     }
 }

@@ -19,8 +19,7 @@ public class ImportTransactionsCommandHandler :
     public ImportTransactionsCommandHandler(
         IFinGuardDbContext context,
         IFileStorage storage,
-        ITransactionFileReader reader,
-        TimeProvider timeProvider)
+        ITransactionFileReader reader)
     {
         _context = context;
         _storage = storage;
