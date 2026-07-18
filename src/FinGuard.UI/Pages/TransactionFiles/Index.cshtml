@@ -4,18 +4,46 @@
     ViewData["Title"] = "Transaction File";
 }
 
-<div class="d-flex align-items-center justify-content-center" style="min-height: 75vh;">
+<div class="d-flex align-items-center justify-content-center py-5" style="min-height: 75vh;">
     <div class="col-md-6 col-lg-5 w-100 border p-4 rounded shadow-sm bg-white" style="max-width: 500px;">
 
         <h2 class="text-center mb-3">Transaction Files</h2>
-        <p class="text-muted text-center mb-4">Download the structured Excel template required for processing batch transactions.</p>
+        <p class="text-muted text-center mb-4">Download the structured Excel template, fill in your records, and upload the finished document below.</p>
 
-        <form method="post" asp-page-handler="Download">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+        @* Validation Summary for API / ModelState errors *@
+        <div asp-validation-summary="All" class="text-danger small mb-3" role="alert"></div>
+
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success shadow-sm mb-4 d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <div class="small">@Model.SuccessMessage</div>
+            </div>
+        }
+
+        @* Action 1: Download Template *@
+        <form method="post" asp-page-handler="Download" class="mb-4 pb-4 border-bottom">
+            <div class="d-grid">
+                <button type="submit" class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-file-earmark-excel-fill text-success"></i> Download Template
+                </button>
+            </div>
+        </form>
+
+        @* Action 2: Upload File *@
+        <form method="post" asp-page-handler="Upload" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label asp-for="Input.File" class="form-label fw-bold text-secondary small">Upload Completed File</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-file-earmark-arrow-up"></i></span>
+                    <input asp-for="Input.File" type="file" class="form-control bg-light" />
+                </div>
+                <span asp-validation-for="Input.File" class="text-danger small mt-1 d-block"></span>
+            </div>
 
             <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-block d-flex align-items-center justify-content-center gap-2">
-                    <i class="bi bi-file-earmark-excel-fill"></i> Download Template
+                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-cloud-upload-fill"></i> Upload and Process
                 </button>
             </div>
         </form>

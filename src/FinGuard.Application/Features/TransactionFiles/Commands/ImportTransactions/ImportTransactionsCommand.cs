@@ -1,5 +1,4 @@
-﻿using FinGuard.Application.Features.TransactionFiles.DTOs;
-using MediatR;
+﻿using MediatR;
 
 namespace FinGuard.Application.Features.TransactionFiles.Commands.ImportTransactions;
 

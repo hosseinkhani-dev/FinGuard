@@ -18,19 +18,30 @@
             </p>
         </section>
 
-        <section class="action-card">
-            <div class="action-group">
-                <a asp-page="/Auth/Login" class="btn btn-primary">Sign In to Account</a>
-            </div>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <section class="action-card">
+                <div class="action-group">
+                    <h1>Upload a file and start working with FinGuard</h1>
+                </div>
+            </section>
+        }
+        else
+        {
+            <section class="action-card">
+                <div class="action-group">
+                    <a asp-page="/Auth/Login" class="btn btn-primary">Sign In to Account</a>
+                </div>
 
-            <div class="tenant-separator">
-                <span>Deploying a new instance?</span>
-            </div>
+                <div class="tenant-separator">
+                    <span>Deploying a new instance?</span>
+                </div>
 
-            <div class="action-group">
-                <a asp-page="/Tenants/Create" class="link-secondary">Create a New Organization Tenant &rarr;</a>
-            </div>
-        </section>
+                <div class="action-group">
+                    <a asp-page="/Tenants/Create" class="link-secondary">Create a New Organization Tenant &rarr;</a>
+                </div>
+            </section>
+        }
     </main>
 </div>
 
@@ -84,13 +95,10 @@
     }
 
     @@media (max-width: 768px) {
-        .landing-content
-
-    {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-
+        .landing-content {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
     }
 
     .hero-section h1 {

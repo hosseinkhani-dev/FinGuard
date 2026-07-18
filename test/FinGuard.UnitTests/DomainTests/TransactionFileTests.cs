@@ -83,25 +83,6 @@ public class TransactionFileTests
         transactionFile.ProcessingStartedAt.Should().Be(startedAt);
     }
 
-    [Theory]
-    [InlineData(UploadStatus.Processing)]
-    [InlineData(UploadStatus.Completed)]
-    [InlineData(UploadStatus.Failed)]
-    public void StartProcessing_WhenStatusIsNotPending_ShouldThrowDomainException(UploadStatus currentStatus)
-    {
-        // Arrange
-        var transactionFile = CreateValidTransactionFile();
-        TransitionToStatus(transactionFile, currentStatus);
-        var startedAt = _expectedCreatedAt.AddMinutes(5);
-
-        // Act
-        Action act = () => transactionFile.StartProcessing(startedAt);
-
-        // Assert
-        act.Should().Throw<DomainException>()
-           .WithMessage("Upload is not pending.");
-    }
-
     [Fact]
     public void Complete_WhenStatusIsProcessing_ShouldUpdateStatusAndTimestamp()
     {

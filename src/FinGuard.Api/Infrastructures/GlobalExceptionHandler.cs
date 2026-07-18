@@ -56,6 +56,11 @@ public class GlobalExceptionHandler : IExceptionHandler
                 "A domain validation error occurred.",
                 "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
 
+            ImportValidationException => (
+            StatusCodes.Status400BadRequest,
+            "An Imported row is not valid",
+            "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+
             ConflictException => (
                 StatusCodes.Status409Conflict,
                 "A conflict occurred with the current state of the resource.",
@@ -69,7 +74,7 @@ public class GlobalExceptionHandler : IExceptionHandler
             UnauthorizedException => (
                 StatusCodes.Status401Unauthorized,
                 "Unauthorized access.",
-                "https://tools.ietf.org/html/rfc7231#section-6.5.5"), // RFC correction from 6.5.4
+                "https://tools.ietf.org/html/rfc7231#section-6.5.5"),
 
             _ => (
                 StatusCodes.Status500InternalServerError,
